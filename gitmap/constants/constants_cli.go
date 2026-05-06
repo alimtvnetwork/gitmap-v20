@@ -193,6 +193,20 @@ const (
 	// to keep it.
 	FlagVSCodePMSyncTag     = "tag"
 	FlagDescVSCodePMSyncTag = "Replace detected tags with this name (repeatable; accepts comma-list). Use instead of --vscode-tag for exact control"
+	// FlagVSCodePMSyncMode picks the tag-merge strategy used when the
+	// detected set is reconciled with the existing on-disk tags.
+	// Values: union (default, additive), replace (detector wins),
+	// intersection (set-AND + brand pin — only tags present in BOTH
+	// sources survive, but the "gitmap" brand tag is always preserved
+	// so re-syncs never silently strip our own marker).
+	FlagVSCodePMSyncMode     = "mode"
+	FlagDescVSCodePMSyncMode = "Tag merge strategy: union (default) | replace | intersection"
+	// VSCodePMSyncMode* are the canonical CLI string values for the
+	// --mode flag. Centralised so the parser, the helptext, and the
+	// MergeMode.String() implementation can never drift.
+	VSCodePMSyncModeUnion        = "union"
+	VSCodePMSyncModeReplace      = "replace"
+	VSCodePMSyncModeIntersection = "intersection"
 )
 
 // Audit-legacy defaults + flag names. Patterns are comma-separated regexes.

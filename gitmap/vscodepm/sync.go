@@ -37,12 +37,19 @@ type Pair struct {
 // Returns ErrUserDataMissing / ErrExtensionMissing when the path
 // cannot be resolved — callers should treat those as soft skips.
 func Sync(pairs []Pair) (SyncSummary, error) {
+	return SyncMode(pairs, MergeModeUnion)
+}
+
+// SyncMode is Sync with an explicit merge strategy. Same path
+// resolution and atomic-write semantics; only the per-entry tag
+// reconciliation changes per the MergeMode dispatcher.
+func SyncMode(pairs []Pair, mode MergeMode) (SyncSummary, error) {
 	path, err := ProjectsJSONPath()
 	if err != nil {
 		return SyncSummary{}, err
 	}
 
-	return SyncAt(path, pairs)
+	return SyncAtMode(path, pairs, mode)
 }
 
 // RenameByPath updates the Name field of the entry whose rootPath matches.
@@ -122,6 +129,15 @@ func readEntries(path string) ([]Entry, error) {
 // "Updated" counts when EITHER Name OR the union'd Paths set actually
 // changes vs. what's currently on disk. Pure no-ops increment Unchanged.
 func mergePairs(existing []Entry, pairs []Pair) ([]Entry, SyncSummary) {
+	return mergePairsWithMode(existing, pairs, MergeModeUnion)
+}
+
+// mergePairsWithMode is the mode-aware merge engine. It mutates a
+// copy of existing in place and returns the new slice + summary.
+// Tag reconciliation is delegated to mergeTags; everything else
+// (Name overwrite, Paths union, Added/Updated/Unchanged tally) is
+// strategy-independent and lives here.
+func mergePairsWithMode(existing []Entry, pairs []Pair, mode MergeMode) ([]Entry, SyncSummary) {
 	indexByPath := make(map[string]int, len(existing))
 	for i, e := range existing {
 		indexByPath[normalizePath(e.RootPath)] = i
@@ -134,6 +150,9 @@ func mergePairs(existing []Entry, pairs []Pair) ([]Entry, SyncSummary) {
 
 		idx, found := indexByPath[key]
 		if !found {
+			// New entry: there's no "existing" set to merge with, so
+			// every mode reduces to "write what the detector gave us"
+			// — which is exactly what newEntry already does today.
 			existing = append(existing, newEntry(p.RootPath, p.Name, p.Paths, p.Tags))
 			indexByPath[key] = len(existing) - 1
 			summary.Added++
@@ -142,10 +161,10 @@ func mergePairs(existing []Entry, pairs []Pair) ([]Entry, SyncSummary) {
 		}
 
 		mergedPaths := unionPaths(existing[idx].Paths, p.Paths)
-		mergedTags := unionTags(existing[idx].Tags, p.Tags)
+		mergedTags := mergeTags(mode, existing[idx].Tags, p.Tags)
 		nameChanged := existing[idx].Name != p.Name
 		pathsChanged := len(mergedPaths) != len(existing[idx].Paths)
-		tagsChanged := len(mergedTags) != len(existing[idx].Tags)
+		tagsChanged := !sameTagSet(existing[idx].Tags, mergedTags)
 
 		if !nameChanged && !pathsChanged && !tagsChanged {
 			summary.Unchanged++
@@ -160,6 +179,27 @@ func mergePairs(existing []Entry, pairs []Pair) ([]Entry, SyncSummary) {
 	}
 
 	return existing, summary
+}
+
+// sameTagSet reports whether a and b contain exactly the same tags
+// (order-insensitive, dedup-aware). Used to decide Unchanged vs
+// Updated under non-union modes where the merged slice can be
+// SHORTER than the original — a length compare alone would miss it.
+func sameTagSet(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	seen := make(map[string]struct{}, len(a))
+	for _, t := range a {
+		seen[t] = struct{}{}
+	}
+	for _, t := range b {
+		if _, ok := seen[t]; !ok {
+			return false
+		}
+	}
+
+	return true
 }
 
 // writeEntriesAtomic encodes entries to a sibling .tmp then renames.

@@ -85,6 +85,10 @@ const (
 	ErrVSCodePMWriteTempFailed  = "vscode: failed to write temp %s: %v\n"
 	ErrVSCodePMRenameFailed     = "vscode: failed to commit %s: %v\n"
 	ErrVSCodePMNoUserDataEnv    = "vscode: cannot determine user-data directory (no APPDATA / USERPROFILE / HOME env)\n"
+	// ErrVSCodePMSyncBadMode is emitted when --mode is passed an
+	// unknown literal. Args: bad-value, then the three accepted
+	// literals (union, replace, intersection).
+	ErrVSCodePMSyncBadMode = "vscode-pm-sync: unknown --mode %q (accepted: %s | %s | %s)"
 )
 
 // User-facing messages.
