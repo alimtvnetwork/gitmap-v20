@@ -94,6 +94,50 @@ gitmap cin ./canonical -3 --dry-run --function-intel on --languages Go,TypeScrip
       7 · Headless CI run (fail loudly on any unset value)
     </h3>
     <CodeBlock language="bash" code={`gitmap cin ./canonical all --profile CI --no-prompt`} />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      8 · Mirror tags + auto-create release branches (NEW)
+    </h3>
+    <p className="text-sm text-muted-foreground mb-2">
+      When the source carries an annotated tag like <code>v1.2.3</code>,{" "}
+      <code>commit-in</code> re-creates that tag on the destination — pointing at the{" "}
+      NEW commit SHA produced by the replay (not the original source SHA, which doesn't
+      exist in the destination history). If the tag matches the canonical semver shape,
+      it ALSO creates a <code>release/&lt;tag&gt;</code> branch at the same new SHA, so
+      it's interchangeable with <code>gitmap release-branch</code> tooling.
+    </p>
+    <CodeBlock
+      language="bash"
+      code={`# Default: annotated tags only, auto release branch ON
+gitmap cin ./canonical https://github.com/me/legacy.git
+
+# Mirror EVERY tag including lightweight bookmarks
+gitmap cin ./canonical ./old --tags All
+
+# Mirror tags but skip the auto release branch (you'll cut releases manually)
+gitmap cin ./canonical ./old --no-release-branch
+
+# Custom prefix — branches become 'releases/v1.2.3' instead of 'release/v1.2.3'
+gitmap cin ./canonical ./old --release-branch-prefix releases/
+
+# Disable tag mirroring entirely
+gitmap cin ./canonical ./old --tags None`}
+    />
+    <p className="text-sm text-muted-foreground mt-3 mb-2">
+      The three-way relationship (old SHA → new SHA → mirrored tag → release branch) is
+      persisted in the <code>RewrittenCommit</code> SQLite row. Query it any time:
+    </p>
+    <CodeBlock
+      language="sql"
+      code={`SELECT sc.SourceSha       AS OldSha,
+       rc.NewSha          AS NewSha,
+       rc.MirroredTagName AS Tag,
+       rc.MirroredReleaseBranch AS ReleaseBranch
+FROM   RewrittenCommit rc
+JOIN   SourceCommit    sc ON sc.SourceCommitId = rc.SourceCommitId
+WHERE  rc.MirroredTagName IS NOT NULL
+ORDER  BY rc.RewrittenCommitId;`}
+    />
   </section>
 );
 

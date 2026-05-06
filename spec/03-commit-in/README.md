@@ -15,6 +15,7 @@ user explicitly says `next` (per `.lovable/plan.md`).
 | 05 | `05-profiles-and-json-shape.md`     | Profile JSON shape (PascalCase), file layout, default-binding rule  |
 | 06 | `06-message-and-function-intel.md`  | Message rules order, weak-word policy, per-language function detect |
 | 07 | `07-acceptance-and-edge-cases.md`   | Acceptance matrix, ambiguity resolutions, conformance tests         |
+| 08 | `08-tag-mirroring-and-release-branches.md` | Annotated-tag mirroring, version-tag detection, auto release branches, RewrittenCommit columns, T1–T10 |
 
 ## Source-of-truth rules (apply to ALL files in this folder)
 
