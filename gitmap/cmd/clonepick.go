@@ -17,7 +17,6 @@ package cmd
 // UI lands in a follow-up patch (tracked in .lovable/plan.md).
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
