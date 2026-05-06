@@ -10,7 +10,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v16/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v16/gitmap/clonepick"
 	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v16/gitmap/store"
@@ -67,7 +69,8 @@ func announceClonePickPersistence(plan clonepick.Plan, result clonepick.Result, 
 			replayId, plan.RepoCanonicalId, name)
 		if !plan.DryRun && db != nil {
 			if err := clonepick.TouchAfterReplay(db, replayId, plan.DryRun); err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				cliexit.Reportf(constants.CmdClonePick, "touch-replay",
+					strconv.FormatInt(replayId, 10), err)
 			}
 		}
 	case result.SelectionId > 0:

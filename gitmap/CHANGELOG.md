@@ -1,5 +1,31 @@
 # Changelog
 
+## v4.27.0 — clone-pick: replace bare-err with cliexit.Reportf
+
+### Fixed
+- `gitmap/cmd/clonepick_execute.go:70` was printing
+  `fmt.Fprintln(os.Stderr, err)` after a `TouchAfterReplay` DB
+  failure. The CI gate `.github/scripts/check-bare-stderr-err.sh`
+  (per spec/04-generic-cli/07-error-handling.md) forbids bare
+  `Fprintln(os.Stderr, err)` in `gitmap/cmd/*.go` because it
+  drops three of four required context fields (command, op,
+  subject, cause).
+- Replaced with
+  `cliexit.Reportf(constants.CmdClonePick, "touch-replay",
+   strconv.FormatInt(replayId, 10), err)` so the failure line
+  carries the command name, the operation, the subject
+  (replay-id), and the underlying cause — matching the
+  surrounding `clonefrom` call sites.
+
+### Notes
+- Imports updated: `+ cliexit`, `+ strconv`. `fmt` and `os` are
+  still used elsewhere in the file (`Fprintf` for the saved /
+  replayed banner) so they stay.
+- `bash .github/scripts/check-bare-stderr-err.sh` now reports
+  `OK: no bare 'fmt.Fprintln(os.Stderr, err)' in gitmap/cmd/`.
+- gofmt-clean. No behaviour change to the success path.
+
+
 ## v4.26.0 — Repo-wide gofmt sweep (CI gofmt-clean gate fix)
 
 ### Fixed
