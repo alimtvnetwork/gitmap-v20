@@ -82,13 +82,13 @@ const ReleaseVersionPage = () => {
         </header>
 
         {/* Platform tabs */}
-        <Tabs value={platform} onValueChange={(v) => setPlatform(v as Platform)}>
+        <Tabs value={platform} onValueChange={(v) => setPlatform(v as ReleasePlatform)}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="windows">Windows (PowerShell)</TabsTrigger>
             <TabsTrigger value="unix">macOS / Linux</TabsTrigger>
           </TabsList>
 
-          {(["windows", "unix"] as Platform[]).map((p) => (
+          {(["windows", "unix"] as ReleaseReleasePlatform[]).map((p) => (
             <TabsContent key={p} value={p} className="space-y-6 pt-6">
               {/* Pinned card */}
               <section className="rounded-lg border border-primary/40 bg-primary/5 p-5 space-y-3">
