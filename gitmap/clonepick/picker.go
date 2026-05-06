@@ -123,14 +123,33 @@ func newPickerModel(all, preselected []string) pickerModel {
 // Init is required by tea.Model. Nothing to schedule on startup.
 func (m pickerModel) Init() tea.Cmd { return nil }
 
-// Update routes key events to handleKey. Non-key messages are
-// ignored -- the picker is a pure keyboard UI.
+// Update routes key events to handleKey and resize events to
+// handleResize. Other message types are ignored -- the picker is a
+// pure keyboard UI.
 func (m pickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if k, ok := msg.(tea.KeyMsg); ok {
-		return m.handleKey(k)
+	switch t := msg.(type) {
+	case tea.KeyMsg:
+		return m.handleKey(t)
+	case tea.WindowSizeMsg:
+		return m.handleResize(t), nil
 	}
 
 	return m, nil
+}
+
+// handleResize updates the viewport height to match the terminal,
+// clamps the scroll offset, and returns the updated model. Reserves
+// chromeRows for the header + footer so the row window never pushes
+// either offscreen.
+func (m pickerModel) handleResize(msg tea.WindowSizeMsg) pickerModel {
+	height := msg.Height - chromeRows
+	if height < 1 {
+		height = 1
+	}
+	m.viewportHeight = height
+	m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, height, len(m.paths))
+
+	return m
 }
 
 // handleKey implements every bound key. Returning tea.Quit on q / s
@@ -151,17 +170,11 @@ func (m pickerModel) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // handleNavKey handles cursor + selection toggles. Split out so
-// handleKey stays under the function-length cap.
+// handleKey stays under the function-length cap. Cursor movement
+// re-clamps scrollOffset so the cursor row is always in view.
 func (m pickerModel) handleNavKey(k tea.KeyMsg) pickerModel {
+	m = applyCursorMove(m, k.String())
 	switch k.String() {
-	case "up", "k":
-		if m.cursor > 0 {
-			m.cursor--
-		}
-	case "down", "j":
-		if m.cursor < len(m.paths)-1 {
-			m.cursor++
-		}
 	case " ":
 		m.picked[m.cursor] = !m.picked[m.cursor]
 	case "a":
@@ -169,8 +182,77 @@ func (m pickerModel) handleNavKey(k tea.KeyMsg) pickerModel {
 	case "n":
 		m.picked = make(map[int]bool)
 	}
+	m.scrollOffset = clampScroll(m.cursor, m.scrollOffset,
+		m.viewportHeight, len(m.paths))
 
 	return m
+}
+
+// applyCursorMove updates the cursor for navigation keys. Page keys
+// jump by viewportHeight; g / G are vim-style home / end.
+func applyCursorMove(m pickerModel, key string) pickerModel {
+	switch key {
+	case "up", "k":
+		m.cursor = maxInt(0, m.cursor-1)
+	case "down", "j":
+		m.cursor = minInt(len(m.paths)-1, m.cursor+1)
+	case "pgup", "ctrl+b":
+		m.cursor = maxInt(0, m.cursor-m.viewportHeight)
+	case "pgdown", "ctrl+f", " ":
+		// Note: " " (space) only moves cursor when toggle is the
+		// no-op case below; the toggle in handleNavKey runs first.
+	case "g", "home":
+		m.cursor = 0
+	case "G", "end":
+		m.cursor = maxInt(0, len(m.paths)-1)
+	}
+	if key == "pgdown" || key == "ctrl+f" {
+		m.cursor = minInt(len(m.paths)-1, m.cursor+m.viewportHeight)
+	}
+
+	return m
+}
+
+// clampScroll keeps the cursor in the visible window. Returns the
+// new offset such that cursor in [offset, offset+height). Pure --
+// no model mutation -- so the caller decides when to commit it.
+func clampScroll(cursor, offset, height, total int) int {
+	if height < 1 || total == 0 {
+		return 0
+	}
+	if cursor < offset {
+		return cursor
+	}
+	if cursor >= offset+height {
+		return cursor - height + 1
+	}
+	maxOffset := total - height
+	if maxOffset < 0 {
+		maxOffset = 0
+	}
+	if offset > maxOffset {
+		return maxOffset
+	}
+
+	return offset
+}
+
+// minInt / maxInt: tiny stdlib-free helpers so picker.go has no
+// external dep beyond bubbletea. Kept private to the package.
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+
+	return b
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
 }
 
 // selectAll picks every non-auto-greyed row. Auto-greyed rows stay
