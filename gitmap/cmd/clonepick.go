@@ -162,9 +162,13 @@ func parseClonePickFlags(args []string) clonePickParsed {
 	reordered := reorderFlagsBeforeArgs(args)
 	fs.Parse(reordered)
 
-	if fs.NArg() < 1 {
+	if fs.NArg() < 1 && len(flags.Replay) == 0 {
 		fmt.Fprintln(os.Stderr, constants.MsgClonePickMissingURL)
 		os.Exit(2)
+	}
+	rawURL := ""
+	if fs.NArg() >= 1 {
+		rawURL = fs.Arg(0)
 	}
 	rawPaths := ""
 	if fs.NArg() >= 2 {
@@ -172,7 +176,7 @@ func parseClonePickFlags(args []string) clonePickParsed {
 	}
 
 	return clonePickParsed{
-		RawURL:                          fs.Arg(0),
+		RawURL:                          rawURL,
 		RawPaths:                        rawPaths,
 		Flags:                           flags,
 		Output:                          *output,
