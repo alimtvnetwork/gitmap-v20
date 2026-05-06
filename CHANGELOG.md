@@ -1,5 +1,22 @@
 # Changelog
 
+## v4.31.0 — (2026-05-06) — Docs UI: dedicated pages + sidebar entries for `commit-in`, `replace`, `fix-repo`, `clone-fix-repo`, and `make-public`; root README refresh
+
+- New docs pages added under their own routes:
+  `/commit-in`, `/replace`, `/fix-repo`, `/clone-fix-repo`,
+  `/make-public`. Each page mirrors the canonical helptext with a
+  flag table, examples, exit-code matrix, and "See also" links.
+- Left sidebar (`DocsSidebar.tsx`) now exposes Commit In (cin),
+  Replace (rpl), Fix Repo (fr), Clone + Fix Repo (cfr), and Make
+  Public Repo as first-class entries alongside the existing
+  `merge-left` / `merge-right` items.
+- Root `README.md` Command Reference grew a "Repo-wide rewrite,
+  one-shot publish, and chronological replay" subsection covering
+  all five new/utility commands with copy-pasteable examples.
+- Web `VERSION` constant bumped to `v4.31.0` to stay in lockstep
+  with the Go binary version (enforced by `version-sync.test.ts`).
+
+
 ## v4.18.0 — (2026-05-06) — `gitmap commit-in` / `cin`: chronological multi-source commit replay into a single destination repo
 
 - New top-level command: `gitmap commit-in <source> [inputs...]`
