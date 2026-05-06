@@ -1,5 +1,39 @@
 # Changelog
 
+## v4.25.0 — ERD-vs-SQLCreate parity test (v3.12.1 publish-audit follow-up)
+
+### Added
+- `gitmap/store/erd_parity_test.go` — `TestERDMatchesSQLCreate`
+  walks every `constants_*.go` in `gitmap/constants/`, extracts
+  table names from `CREATE TABLE IF NOT EXISTS` blocks, and
+  asserts the set equals the table blocks declared in
+  `spec/01-app/gitmap-database-erd.mmd`. Fails CI on either
+  direction of drift (missing-from-ERD or orphan-in-ERD) with a
+  concrete fix recipe in the error message.
+- 24 commit-in / pipeline / transactions / archive / VSCode /
+  clone-pick table stubs added to the canonical ERD so the test
+  passes against the current schema (52 tables total). Stubs
+  declare PK only; per-column refinement is a future task.
+
+### Changed
+- Renamed `spec/01-app/gitmap-database-erd-v3.12.1.mmd` →
+  `spec/01-app/gitmap-database-erd.mmd` (canonical, version-less).
+- Deleted stale `spec/01-app/gitmap-database-erd.mmd` (v3.5.0,
+  missing 11 tables) and `gitmap-core-schema-simplified.mmd`
+  (v15 Phase 1.2). Replaced by the canonical file above.
+- ERD frontmatter now points at the parity test as the
+  enforcement mechanism.
+
+### Why
+The v3.5.0 ERD silently shed 11 tables and nobody noticed for
+~6 months — drift is invisible without a test. Adding a
+name-only parity gate (intentionally not column-level, to avoid
+churning the ERD on every migration) closes the failure mode
+that hurt us. CI picks the test up automatically via the
+existing `go test ./...` step in the full-suite job — no
+workflow edits required.
+
+
 ## v4.24.0 — release-version snippet Vitest wiring (spec 105 follow-up)
 
 ### Added
