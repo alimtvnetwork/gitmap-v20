@@ -4,58 +4,25 @@ import DocsLayout from "@/components/docs/DocsLayout";
 import CodeBlock from "@/components/docs/CodeBlock";
 import { Pin, Wrench, ShieldCheck, Tag, ExternalLink, AlertTriangle } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  RELEASE_REPO,
+  buildReleaseSnippets,
+  isValidReleaseVersion,
+  normalizeReleaseVersion,
+  type ReleasePlatform,
+} from "./releaseVersionSnippets";
 
-const REPO = "alimtvnetwork/gitmap-v16";
-const DOCS_HOST = "https://gitmap.dev";
-
-type Platform = "windows" | "unix";
-
-interface InstallSnippet {
-  pinned: string;
-  generic: string;
-}
-
-const SEMVER_TAG = /^v\d+\.\d+\.\d+(-[A-Za-z0-9.]+)?$/;
-
-const buildSnippets = (version: string, platform: Platform): InstallSnippet => {
-  const releaseBase = `https://github.com/${REPO}/releases/download/${version}`;
-
-  if (platform === "windows") {
-    return {
-      pinned: [
-        `# Pinned install — locks gitmap to ${version} (no auto-upgrade)`,
-        `iwr ${releaseBase}/release-version-${version}.ps1 -OutFile $env:TEMP\\rv.ps1`,
-        `& $env:TEMP\\rv.ps1`,
-      ].join("\n"),
-      generic: [
-        `# Generic install — same script, version passed as parameter`,
-        `iwr ${DOCS_HOST}/scripts/release-version.ps1 -OutFile $env:TEMP\\rv.ps1`,
-        `& $env:TEMP\\rv.ps1 -Version ${version}`,
-      ].join("\n"),
-    };
-  }
-
-  return {
-    pinned: [
-      `# Pinned install — locks gitmap to ${version} (no auto-upgrade)`,
-      `curl -fsSL ${releaseBase}/release-version-${version}.sh | bash`,
-    ].join("\n"),
-    generic: [
-      `# Generic install — same script, version passed as parameter`,
-      `curl -fsSL ${DOCS_HOST}/scripts/release-version.sh | bash -s -- --version ${version}`,
-    ].join("\n"),
-  };
-};
+const REPO = RELEASE_REPO;
 
 const ReleaseVersionPage = () => {
   const { version: rawVersion = "" } = useParams<{ version: string }>();
-  const [platform, setPlatform] = useState<Platform>("windows");
+  const [platform, setPlatform] = useState<ReleasePlatform>("windows");
 
-  const version = rawVersion.startsWith("v") ? rawVersion : `v${rawVersion}`;
-  const isValid = SEMVER_TAG.test(version);
+  const version = normalizeReleaseVersion(rawVersion);
+  const isValid = isValidReleaseVersion(rawVersion);
 
   const snippets = useMemo(
-    () => (isValid ? buildSnippets(version, platform) : null),
+    () => (isValid ? buildReleaseSnippets(version, platform) : null),
     [version, platform, isValid],
   );
 
