@@ -1,0 +1,100 @@
+import CodeBlock from "@/components/docs/CodeBlock";
+
+// CommitInExamples renders the seven worked walkthroughs for the
+// commit-in docs page. Extracted from CommitIn.tsx so the page
+// component stays under the project-wide <200-lines rule.
+const CommitInExamples = () => (
+  <section>
+    <h2 className="text-xl font-semibold mb-3">Examples</h2>
+
+    <h3 className="font-semibold text-sm mt-4 mb-2 text-foreground">
+      1 · Convert a plain folder of files into a git repo + replay history
+    </h3>
+    <p className="text-sm text-muted-foreground mb-2">
+      You have <code>./my-project/</code> with code but no <code>.git/</code> yet.
+      Point <code>commit-in</code> at it and pull history from a URL — the folder is
+      auto-<code>git init</code>ed in place, your files stay where they are.
+    </p>
+    <CodeBlock
+      language="bash"
+      code={`# folder exists, no .git/ yet — commit-in will run \`git init\` for you
+gitmap commit-in ./my-project https://github.com/me/my-project-archive.git`}
+    />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      2 · Mix a local folder + a remote URL as INPUTS into one canonical timeline
+    </h3>
+    <p className="text-sm text-muted-foreground mb-2">
+      The first positional is the TARGET. The second is the comma-separated INPUTS to
+      walk in author-date order. You can freely mix a local checkout with one or more
+      remote URLs — each URL is shallow-cloned into{" "}
+      <code>.gitmap/temp/&lt;runId&gt;/</code> and walked just like the local one.
+    </p>
+    <CodeBlock
+      language="bash"
+      code={`# target = ./canonical (auto-init if missing)
+# inputs = local folder + 2 remote forks, walked oldest -> newest
+gitmap cin ./canonical \\
+    ./old-local-checkout,https://github.com/me/old-fork.git,git@github.com:me/new-fork.git`}
+    />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      3 · Brand-new target folder from scratch (mkdir + init + replay)
+    </h3>
+    <p className="text-sm text-muted-foreground mb-2">
+      Pass a path that does not exist. <code>commit-in</code> creates the folder, runs
+      <code> git init</code>, and starts appending — one command, zero setup.
+    </p>
+    <CodeBlock
+      language="bash"
+      code={`gitmap commit-in ./brand-new-canonical \\
+    https://github.com/me/legacy-v1.git,https://github.com/me/legacy-v2.git`}
+    />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      4 · Replay every versioned sibling automatically
+    </h3>
+    <p className="text-sm text-muted-foreground mb-2">
+      The <code>all</code> keyword expands to every <code>&lt;source&gt;-vN</code>{" "}
+      sibling on disk. Use <code>-N</code> for the latest N only. Both work great with
+      <code> --save-profile</code> so the next run is one word.
+    </p>
+    <CodeBlock
+      language="bash"
+      code={`# Every sibling, save the resolved settings as the default profile
+gitmap commit-in ./canonical all --save-profile Default --set-default
+
+# Just the last 3 siblings, dry-run, with per-language new-function intel
+gitmap cin ./canonical -3 --dry-run --function-intel on --languages Go,TypeScript`}
+    />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      5 · Override author + scrub commit messages
+    </h3>
+    <CodeBlock
+      language="bash"
+      code={`gitmap cin git@github.com:me/canonical.git \\
+    https://github.com/me/old-fork.git,https://github.com/me/new-fork.git \\
+    --author-name "Jane Doe" --author-email jane@example.com \\
+    --message-exclude "StartsWith:Signed-off-by:,Contains:[skip ci]" \\
+    --title-suffix " — via gitmap"`}
+    />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      6 · Reuse a saved profile + only rewrite weak titles
+    </h3>
+    <CodeBlock
+      language="bash"
+      code={`gitmap cin ./canonical all --default \\
+    --override-messages "Refine implementation,Improve module" \\
+    --override-only-weak`}
+    />
+
+    <h3 className="font-semibold text-sm mt-6 mb-2 text-foreground">
+      7 · Headless CI run (fail loudly on any unset value)
+    </h3>
+    <CodeBlock language="bash" code={`gitmap cin ./canonical all --profile CI --no-prompt`} />
+  </section>
+);
+
+export default CommitInExamples;
