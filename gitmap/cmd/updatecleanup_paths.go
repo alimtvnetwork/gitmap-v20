@@ -211,6 +211,8 @@ func normalizeCleanupPath(path string) string {
 		return cleanPath
 	}
 
+	return strings.ToLower(cleanPath)
+}
 
 // isAbsolutePath treats both OS-native absolute paths and POSIX-style
 // "/leading-slash" or "\leading-slash" paths as absolute. On Windows
