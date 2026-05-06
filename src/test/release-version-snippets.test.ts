@@ -51,11 +51,11 @@ describe("releaseVersionSnippets — Windows", () => {
     expect(snip).toMatchInlineSnapshot(`
       {
         "generic": "# Generic install — same script, version passed as parameter
-      iwr https://gitmap.dev/scripts/release-version.ps1 -OutFile $env:TEMP\\\\rv.ps1
-      & $env:TEMP\\\\rv.ps1 -Version v3.39.0",
+      iwr https://gitmap.dev/scripts/release-version.ps1 -OutFile $env:TEMP\\rv.ps1
+      & $env:TEMP\\rv.ps1 -Version v3.39.0",
         "pinned": "# Pinned install — locks gitmap to v3.39.0 (no auto-upgrade)
-      iwr https://github.com/alimtvnetwork/gitmap-v16/releases/download/v3.39.0/release-version-v3.39.0.ps1 -OutFile $env:TEMP\\\\rv.ps1
-      & $env:TEMP\\\\rv.ps1",
+      iwr https://github.com/alimtvnetwork/gitmap-v16/releases/download/v3.39.0/release-version-v3.39.0.ps1 -OutFile $env:TEMP\\rv.ps1
+      & $env:TEMP\\rv.ps1",
       }
     `);
   });
