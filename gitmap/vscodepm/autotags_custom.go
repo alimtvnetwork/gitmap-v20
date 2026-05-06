@@ -26,9 +26,27 @@ import (
 // for any given env state.
 func DetectTagsCustom(rootPath string) []string {
 	detected := detectTagsWithExtraMarkers(rootPath, parseMarkerEnv())
-	filtered := dropSkipped(detected, parseListEnv(constants.EnvVSCodeTagSkip))
+	branded := prependGitmapBrand(detected)
+	filtered := dropSkipped(branded, parseListEnv(constants.EnvVSCodeTagSkip))
 
 	return appendAlwaysAdd(filtered, parseListEnv(constants.EnvVSCodeTagAdd))
+}
+
+// prependGitmapBrand inserts the canonical "gitmap" brand tag at the
+// head of the tag list so every projects.json entry written by
+// gitmap is self-identifying in the VS Code Project Manager UI. The
+// tag is added BEFORE the skip filter runs, so users who genuinely
+// don't want it can opt out via `--vscode-tag-skip gitmap`. If the
+// tag already exists (e.g. carried in via --vscode-tag gitmap or
+// already on disk via unionTags upstream) it is not duplicated.
+func prependGitmapBrand(tags []string) []string {
+	for _, t := range tags {
+		if t == constants.AutoTagGitmap {
+			return tags
+		}
+	}
+
+	return append([]string{constants.AutoTagGitmap}, tags...)
 }
 
 // detectTagsWithExtraMarkers runs the same scan as DetectTags but
