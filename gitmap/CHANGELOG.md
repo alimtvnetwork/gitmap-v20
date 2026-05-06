@@ -1,5 +1,40 @@
 # Changelog
 
+## v4.30.0 — golden CSVs: normalize CRLF→LF in asserts (durable cross-platform fix)
+
+### Fixed
+- Windows CI was still failing `TestCloneFromReport_Golden_*` and
+  `TestScanGolden_CSV*` after v4.29.0 because `git ls-files --eol` showed
+  the **index** had `i/lf` for those CSVs (committed earlier as LF), so
+  every fresh clone — Linux, macOS, Windows — got LF on disk regardless
+  of any new `eol=crlf` attribute. Meanwhile the writer still emits CRLF
+  per `csvcrlf_contract_test.go`. Result: 1-byte-per-line drift recurred.
+- Root-cause fix that survives any future `.gitattributes` / autocrlf /
+  editor change: added `normalizeGoldenBytes` (`bytes.ReplaceAll(b,
+  "\r\n", "\n")`) to both `assertScanGolden`
+  (`gitmap/formatter/scangolden_contract_test.go`) and
+  `assertReportGolden` (`gitmap/clonefrom/summary_golden_test.go`),
+  applied to BOTH `got` and `want` before comparison and to `got`
+  before regenerate-write. Goldens now stored as LF on disk
+  (hand-readable, cross-platform consistent), the production CRLF
+  contract remains enforced separately by `TestCSVCRLF_WriteCSV` and
+  `cmd/csvcrlf_contract_test.go` which inspect in-memory writer bytes.
+- Reverted the v4.29.0 `.gitattributes` `-text eol=crlf` per-glob
+  override (it was a no-op anyway: `text=unset` causes git to ignore
+  `eol=`, and the index already had LF so checkouts never saw CRLF).
+- Re-converted on-disk goldens to LF so they match the index and any
+  future fresh clone:
+  `clonefrom_report_canonical.csv` 271→267,
+  `clonefrom_report_empty.csv` 54→53,
+  `clonefrom_report_quoting.csv` 436→429,
+  `scan_canonical.csv` 620→617,
+  `scan_empty.csv` 132→131.
+
+### Notes
+- This is the durable end of the v4.27 → v4.28 → v4.29 regression cycle.
+  Future contributors editing CSV goldens cannot accidentally break
+  byte-exact comparisons via line-ending mismatches anymore.
+
 ## v4.29.0 — golden CSVs: pin CRLF via .gitattributes (real root cause)
 
 ### Fixed
