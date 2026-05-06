@@ -149,7 +149,7 @@ func resolveBuildOutputDir(repoPath, buildOutput string) string {
 	// authored on Linux/macOS routinely use "/custom/bin" to mean
 	// "absolute, root of current drive". Honor that intent so a
 	// shared config doesn't silently get re-rooted under repoPath.
-	if filepath.IsAbs(buildOutput) || strings.HasPrefix(buildOutput, "/") {
+	if isAbsolutePath(buildOutput) {
 		return filepath.Clean(buildOutput)
 	}
 
@@ -212,4 +212,21 @@ func normalizeCleanupPath(path string) string {
 	}
 
 	return strings.ToLower(cleanPath)
+}
+
+// isAbsolutePath treats both OS-native absolute paths and POSIX-style
+// "/leading-slash" or "\leading-slash" paths as absolute. On Windows
+// filepath.IsAbs("/custom/bin") returns false (Windows wants a drive
+// letter), but config files authored on Linux/macOS routinely use
+// "/custom/bin" to mean "absolute". Honor that intent so a shared
+// config doesn't silently get re-rooted under repoPath.
+func isAbsolutePath(path string) bool {
+	if filepath.IsAbs(path) {
+		return true
+	}
+	if len(path) == 0 {
+		return false
+	}
+	first := path[0]
+	return first == '/' || first == '\\'
 }
