@@ -88,3 +88,74 @@ func containsTag(tags []string, tag string) bool {
 
 	return false
 }
+
+// setupVSCodePMSyncFixtureWithTags is a generalisation of
+// setupVSCodePMSyncFixture that lets the caller pre-load the entry
+// with an arbitrary tag set. Used by the dedupe tests to prove the
+// merge layer collapses duplicates regardless of source.
+func setupVSCodePMSyncFixtureWithTags(t *testing.T, seedTags []string) (string, func()) {
+	t.Helper()
+	tmp := t.TempDir()
+	repoDir := filepath.Join(tmp, "demo-repo")
+	if err := os.MkdirAll(repoDir, 0o755); err != nil {
+		t.Fatalf("mkdir repo: %v", err)
+	}
+
+	jsonPath := vscodepmSyncFixturePath(t, tmp)
+	seed := []vscodepm.Entry{{
+		Name: "demo-repo", RootPath: repoDir,
+		Paths: []string{}, Tags: seedTags, Enabled: true,
+	}}
+	data, err := json.MarshalIndent(seed, "", "\t")
+	if err != nil {
+		t.Fatalf("marshal seed: %v", err)
+	}
+	if err := os.WriteFile(jsonPath, data, 0o644); err != nil {
+		t.Fatalf("write seed: %v", err)
+	}
+
+	return repoDir, swapHomeEnv(tmp)
+}
+
+// setupVSCodePMSyncEmptyHome wires HOME / XDG_CONFIG_HOME to a fresh
+// temp dir but writes NO projects.json. The extension dir does not
+// exist either — exercises the "missing file" code path end-to-end.
+func setupVSCodePMSyncEmptyHome(t *testing.T) func() {
+	t.Helper()
+	tmp := t.TempDir()
+	// Pre-create the extension dir so ProjectsJSONPath() returns a
+	// valid path, but leave projects.json itself absent.
+	_ = vscodepmSyncFixturePath(t, tmp)
+
+	return swapHomeEnv(tmp)
+}
+
+// setupVSCodePMSyncMalformedFile writes a deliberately broken
+// projects.json (truncated JSON object) and returns its path so the
+// caller can snapshot the bytes before invoking the runner. Asserts
+// the soft-fail "leave the file untouched" contract.
+func setupVSCodePMSyncMalformedFile(t *testing.T) (string, func()) {
+	t.Helper()
+	tmp := t.TempDir()
+	jsonPath := vscodepmSyncFixturePath(t, tmp)
+	const malformed = `[{"name": "demo-repo", "rootPath":` // truncated
+	if err := os.WriteFile(jsonPath, []byte(malformed), 0o644); err != nil {
+		t.Fatalf("write malformed: %v", err)
+	}
+
+	return jsonPath, swapHomeEnv(tmp)
+}
+
+// swapHomeEnv points HOME and XDG_CONFIG_HOME at tmp and returns a
+// restore func that puts the original values back. Centralised so
+// every fixture uses the same swap shape.
+func swapHomeEnv(tmp string) func() {
+	prevHome, prevXDG := os.Getenv("HOME"), os.Getenv("XDG_CONFIG_HOME")
+	os.Setenv("HOME", tmp)
+	os.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, ".config"))
+
+	return func() {
+		os.Setenv("HOME", prevHome)
+		os.Setenv("XDG_CONFIG_HOME", prevXDG)
+	}
+}
