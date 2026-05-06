@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.21.1 — clone-pick cmd file split (200-line cap audit)
+
+### Changed
+- `gitmap/cmd/clonepick.go` split from 270 lines into four focused
+  files, all under the strict <200 lines/file core rule:
+  - `clonepick.go` (103) — dispatcher entry + dry-run branch +
+    `buildClonePickPlan` / `applyReplayOverrides`.
+  - `clonepick_flags.go` (142) — flag binding (`parseClonePickFlags`,
+    `bindClonePickCoreFlags`, `bindClonePickAuxFlags`,
+    `requireClonePickPositional`).
+  - `clonepick_execute.go` (96) — side-effecting executor
+    (`runClonePickExecute`, `announceClonePickPersistence`,
+    `syncClonePickResultToVSCodePM`).
+  - `clonepick_picker.go` (60) — already in shape, untouched.
+- Zero behavioural change: every public symbol kept its name and
+  signature; only the file each one lives in moved.
+
+
 ## v4.21.0 — clone-pick `--ask` clones once, not twice
 
 ### Changed
