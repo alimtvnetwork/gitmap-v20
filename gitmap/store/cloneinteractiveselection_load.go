@@ -47,7 +47,7 @@ func (db *DB) TouchClonePickCreatedAt(id int64) error {
 	return nil
 }
 
-// scanClonePickRow centralises the column->Plan mapping used by both
+// scanClonePickRow centralizes the column->Plan mapping used by both
 // lookup paths. Column order MUST mirror SQLSelectClonePickByID /
 // SQLSelectClonePickByName -- both share the same prefix on purpose.
 func scanClonePickRow(row *sql.Row) (clonepick.Plan, int64, error) {

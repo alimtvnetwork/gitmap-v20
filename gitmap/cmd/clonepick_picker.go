@@ -47,7 +47,7 @@ func maybeRunClonePickPicker(plan clonepick.Plan, ask bool) clonepick.Plan {
 	return plan
 }
 
-// handleClonePickPickerError centralises the cancel-vs-fatal split.
+// handleClonePickPickerError centralizes the cancel-vs-fatal split.
 // Kept separate so maybeRunClonePickPicker stays under the 15-line
 // function cap.
 func handleClonePickPickerError(plan clonepick.Plan, err error) {
