@@ -1,30 +1,12 @@
-// Package cmd — vscodepmsync.go: implements the top-level
-// `gitmap vscode-pm-sync` (alias `vpm`) command.
-//
-// What it does:
-//
-//	1. Resolves the alefragnani.project-manager projects.json path
-//	   via vscodepm.ProjectsJSONPath — OR uses --projects-json when
-//	   the user supplied an absolute override. Soft-fails (exit 0)
-//	   when discovery returns a missing user-data root / extension
-//	   dir, so CI / headless boxes never break on this command.
-//	2. Reads every entry currently in projects.json.
-//	3. For each entry whose rootPath still exists on disk, builds a
-//	   vscodepm.Pair carrying (rootPath, name, tags). Tags come from
-//	   vscodepm.DetectTagsCustom by default; --tag <name> (repeat /
-//	   comma-list) replaces the per-pair detected set with the
-//	   user-supplied list verbatim — the brand tag is NOT
-//	   auto-prepended in that mode.
-//	4. Calls vscodepm.SyncMode (or SyncAtMode when --projects-json
-//	   is set) once with the full pair set. The MergeMode picked by
-//	   --mode (union | replace | intersection) governs how the
-//	   detected/override tag set is reconciled with whatever is
-//	   already on disk.
-//
-// Spec: spec/01-vscode-project-manager-sync/04-tag-resync.md
-// Memory: see the "VS Code PM Sync" entry referenced from
-// mem://features (added in v4.36.0; --projects-json + --tag wired
-// in v4.37.0 alongside --mode).
+// Package cmd — vscodepmsync.go: implements `gitmap vscode-pm-sync`
+// (alias `vpm`). Path defaults to vscodepm.ProjectsJSONPath but
+// --projects-json overrides it. Per-pair tags come from
+// vscodepm.DetectTagsCustom unless --tag was passed (in which case
+// the user-supplied list is used verbatim — brand tag is NOT
+// auto-prepended). --mode (union|replace|intersection) governs the
+// reconciliation against whatever is already on disk. Soft-fails on
+// headless / no-VS-Code boxes. Spec: spec/01-vscode-project-manager-sync/04-tag-resync.md
+// Memory: mem://features VS Code PM Sync (v4.36.0; flags v4.37.0).
 package cmd
 
 import (
