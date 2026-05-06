@@ -37,15 +37,72 @@ func resetTagEnv(t *testing.T) {
 }
 
 // TestDetectTagsCustomNoEnvMatchesBuiltin asserts that with no env
-// overrides, DetectTagsCustom returns exactly what DetectTags does.
+// overrides, DetectTagsCustom returns DetectTags PLUS the canonical
+// "gitmap" brand tag (always emitted so projects.json entries are
+// self-identifying — see prependGitmapBrand in autotags_custom.go).
 func TestDetectTagsCustomNoEnvMatchesBuiltin(t *testing.T) {
 	resetTagEnv(t)
 	root := makeRepoFixture(t)
 
 	got := DetectTagsCustom(root)
-	want := DetectTags(root)
+	want := append([]string{constants.AutoTagGitmap}, DetectTags(root)...)
 	if !reflect.DeepEqual(sortCopy(got), sortCopy(want)) {
-		t.Errorf("custom = %v, builtin = %v (want equal)", got, want)
+		t.Errorf("custom = %v, want %v (= gitmap brand + builtin)", got, want)
+	}
+	if len(got) == 0 || got[0] != constants.AutoTagGitmap {
+		t.Errorf("gitmap brand tag must lead the list, got %v", got)
+	}
+}
+
+// TestDetectTagsCustomGitmapBrandAlwaysPresent confirms the brand tag
+// is emitted even for paths with zero detected markers (an empty dir,
+// a missing path, or an empty rootPath string). This guarantees
+// every projects.json entry written by gitmap is greppable by tag.
+func TestDetectTagsCustomGitmapBrandAlwaysPresent(t *testing.T) {
+	resetTagEnv(t)
+	cases := map[string]string{
+		"empty-dir":   t.TempDir(),
+		"missing":     filepath.Join(t.TempDir(), "nope"),
+		"empty-input": "",
+	}
+	for name, root := range cases {
+		got := DetectTagsCustom(root)
+		if !containsString(got, constants.AutoTagGitmap) {
+			t.Errorf("%s: gitmap brand missing from %v", name, got)
+		}
+	}
+}
+
+// TestDetectTagsCustomGitmapSkippable confirms users can opt out of
+// the brand tag via --vscode-tag-skip gitmap (env: GITMAP_VSCODE_TAG_SKIP).
+func TestDetectTagsCustomGitmapSkippable(t *testing.T) {
+	resetTagEnv(t)
+	defer resetTagEnv(t)
+	os.Setenv(constants.EnvVSCodeTagSkip, constants.AutoTagGitmap)
+
+	got := DetectTagsCustom(makeRepoFixture(t))
+	if containsString(got, constants.AutoTagGitmap) {
+		t.Errorf("expected gitmap brand to be skipped, got %v", got)
+	}
+}
+
+// TestDetectTagsCustomGitmapNotDuplicated confirms that if the brand
+// tag is already requested via --vscode-tag gitmap, it is emitted
+// exactly once (no duplicates in the final tag array).
+func TestDetectTagsCustomGitmapNotDuplicated(t *testing.T) {
+	resetTagEnv(t)
+	defer resetTagEnv(t)
+	os.Setenv(constants.EnvVSCodeTagAdd, constants.AutoTagGitmap)
+
+	got := DetectTagsCustom(makeRepoFixture(t))
+	count := 0
+	for _, tag := range got {
+		if tag == constants.AutoTagGitmap {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Errorf("gitmap appeared %d times in %v, want 1", count, got)
 	}
 }
 
