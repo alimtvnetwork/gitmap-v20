@@ -45,28 +45,6 @@ func Sync(pairs []Pair) (SyncSummary, error) {
 	return SyncAt(path, pairs)
 }
 
-// SyncAt is the explicit-path sibling of Sync. Used by callers that
-// have already resolved (or been given) a projects.json path — e.g.
-// `gitmap vscode-pm-sync --projects-json <path>` — and don't want
-// the path resolver to second-guess them. Same merge / atomic-write
-// semantics as Sync.
-func SyncAt(path string, pairs []Pair) (SyncSummary, error) {
-	existing, err := readEntries(path)
-	if err != nil {
-		return SyncSummary{}, err
-	}
-
-	merged, summary := mergePairs(existing, pairs)
-
-	if err := writeEntriesAtomic(path, merged); err != nil {
-		return summary, err
-	}
-
-	summary.Total = len(merged)
-
-	return summary, nil
-}
-
 // RenameByPath updates the Name field of the entry whose rootPath matches.
 // Paths / Tags / Enabled / Profile are intentionally left alone.
 // Returns true when an entry was actually renamed (false = no-op).
@@ -108,14 +86,6 @@ func ListEntries() ([]Entry, error) {
 		return nil, err
 	}
 
-	return readEntries(path)
-}
-
-// ListEntriesAt is the explicit-path sibling of ListEntries. Used by
-// callers that have already resolved (or been given) a projects.json
-// path — e.g. `gitmap vscode-pm-sync --projects-json <path>` — and
-// don't want the resolver to second-guess them.
-func ListEntriesAt(path string) ([]Entry, error) {
 	return readEntries(path)
 }
 
