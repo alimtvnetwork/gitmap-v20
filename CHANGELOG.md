@@ -1,5 +1,61 @@
 # Changelog
 
+## v4.37.0 — (2026-05-06) — `vscode-pm-sync` gains `--mode union|replace|intersection` for tag-merge strategy
+
+### Added
+
+- **`--mode <strategy>` flag on `gitmap vscode-pm-sync` (`vpm`)** picks how
+  freshly-detected tags are reconciled with the on-disk tag set. Three values:
+  - `union` (default, unchanged from v4.36.0) — existing ∪ detected, dedup'd.
+    Additive only; user-added tags are never removed.
+  - `replace` — detector wins outright. User-added tags are dropped. The
+    `gitmap` brand tag survives because `DetectTagsCustom` always pre-pends it.
+  - `intersection` — only tags present in BOTH sources survive, **plus** the
+    `gitmap` brand tag is pinned (added back even when the strict intersection
+    would be empty) so re-syncs never silently strip our own brand from any
+    entry.
+- New `vscodepm.MergeMode` enum (`MergeModeUnion` / `MergeModeReplace` /
+  `MergeModeIntersection`) + `ParseMergeMode` validator that fails loud on
+  unknown literals (zero-swallow rule).
+- New exported entry points `vscodepm.SyncMode` and `vscodepm.SyncAtMode`
+  carry the `MergeMode` through. Existing `Sync` / `SyncAt` are now thin
+  `MergeModeUnion` wrappers — every legacy caller keeps the v4.36.0 default.
+- Helptext (`gitmap vscode-pm-sync --help`) gains a **Modes** section with a
+  three-row table and worked examples.
+
+### Files
+
+- `gitmap/vscodepm/mergemode.go` — new (enum, parser, dispatcher, three
+  per-strategy helpers).
+- `gitmap/vscodepm/sync.go` — `mergePairs` is now a thin `MergeModeUnion`
+  wrapper around the new mode-aware `mergePairsWithMode`. Added `sameTagSet`
+  so Updated/Unchanged tally still works under non-union modes (where the
+  merged slice can be SHORTER than the original — a length compare alone
+  would miss that). New `SyncMode` exported entry point.
+- `gitmap/vscodepm/syncat.go` — new `SyncAtMode`; legacy `SyncAt` becomes a
+  `MergeModeUnion` wrapper.
+- `gitmap/cmd/vscodepmsync.go` — `parseVSCodePMSyncFlags` now returns
+  `(bool, MergeMode, error)`. Unknown `--mode` exits 2 with a stderr
+  diagnostic. `commitVSCodePMSync` threads the mode into `SyncMode`.
+- `gitmap/constants/constants_cli.go` — `FlagVSCodePMSyncMode` +
+  `FlagDescVSCodePMSyncMode` + the three canonical literals
+  (`VSCodePMSyncModeUnion` / `Replace` / `Intersection`). No magic strings.
+- `gitmap/constants/constants_vscode_pm.go` — `ErrVSCodePMSyncBadMode`
+  format string for the validator.
+- `gitmap/helptext/vscode-pm-sync.md` — Modes section + flag-table refresh.
+- `gitmap/vscodepm/mergemode_test.go` — unit tests for the parser, the
+  String() round-trip, and all three dispatch paths (incl. empty-intersection
+  brand pin).
+- `gitmap/cmd/vscodepmsync_mode_test.go` — end-to-end regression for all
+  three modes against a real on-disk fixture, plus the brand-pin contract.
+- Version bumped to `v4.37.0` in `gitmap/constants/constants.go`,
+  `src/constants/index.ts`, and every `v4.36.0` pin in `README.md`.
+
+### Compatibility
+
+Fully backward-compatible. Every caller that omits `--mode` (i.e. all
+existing CI / scripts) gets the v4.36.0 union behavior unchanged.
+
 ## v4.36.0 — (2026-05-06) — New `gitmap vscode-pm-sync` (`vpm`) command: re-tag every projects.json entry on demand
 
 - New top-level subcommand `gitmap vscode-pm-sync` (alias `vpm`) walks
