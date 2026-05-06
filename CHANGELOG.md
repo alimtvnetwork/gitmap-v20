@@ -1,5 +1,30 @@
 # Changelog
 
+## v4.35.0 — (2026-05-06) — commit-in docs: 7 worked examples, auto-init dispatch table, sample profile JSON
+
+- `src/pages/CommitIn.tsx` rewritten with seven labelled, scenario-driven
+  examples that cover the full surface: (1) plain folder → git repo +
+  history replay, (2) mixed local-folder + multi-URL inputs, (3) brand-new
+  target via mkdir+init+replay, (4) `all` / `-N` versioned-sibling expansion,
+  (5) author override + message scrubbing, (6) saved-profile + weak-title
+  override, (7) headless CI run. Each example carries the why-not-just-the-how.
+- New "How &lt;source&gt; auto-init works" table makes the URL / existing-repo /
+  existing-folder / missing-path dispatch explicit so users know they never
+  have to `git init` first.
+- New "Sample profile JSON" section ships a copy-pasteable
+  `.gitmap/commit-in/profiles/Default.json` with every field populated and
+  inline guidance on PascalCase strict decoding, save semantics, and the
+  absolute-path binding rule (per `spec/03-commit-in/05-profiles-and-json-shape.md`).
+- Page split for the &lt;200-lines code-style rule:
+  - `src/pages/commitInData.ts` — flag rows, exit codes, auto-init rows,
+    canonical profile JSON string.
+  - `src/pages/CommitInExamples.tsx` — the seven worked walkthroughs.
+  - `src/pages/CommitIn.tsx` — page shell only (177 lines).
+- `gitmap/helptext/commit-in.md` mirrors the same seven examples + sample
+  profile JSON so `gitmap commit-in --help` matches the docs site 1:1.
+- Version bumped to `v4.35.0` across `gitmap/constants/constants.go`,
+  `src/constants/index.ts`, and the root `README.md` pinned-version block.
+
 ## v4.34.0 — (2026-05-06) — Auto-brand `gitmap` tag in VS Code Project Manager projects.json
 
 - Every entry that gitmap writes to `%APPDATA%/Code/User/globalStorage/alefragnani.project-manager/projects.json`
