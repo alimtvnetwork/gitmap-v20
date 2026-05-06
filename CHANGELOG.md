@@ -1,5 +1,32 @@
 # Changelog
 
+## v4.34.0 — (2026-05-06) — Auto-brand `gitmap` tag in VS Code Project Manager projects.json
+
+- Every entry that gitmap writes to `%APPDATA%/Code/User/globalStorage/alefragnani.project-manager/projects.json`
+  (or the OS equivalent) now carries `"gitmap"` as the lead tag in
+  its `tags` array. This makes every gitmap-managed project
+  greppable + filterable in the VS Code Project Manager UI without
+  the user having to tag entries by hand.
+- Implementation: new `AutoTagGitmap = "gitmap"` constant +
+  `prependGitmapBrand` helper in `gitmap/vscodepm/autotags_custom.go`.
+  The brand is inserted BEFORE the skip filter, so users who really
+  don't want it can opt out via `--vscode-tag-skip gitmap`. The
+  helper de-dupes when the tag is already present (e.g. carried in
+  via `--vscode-tag gitmap` or already on disk via the upstream
+  `unionTags` merge — user-edited tags are still never removed).
+- Regression tests (`gitmap/vscodepm/autotags_custom_test.go`):
+  - `TestDetectTagsCustomGitmapBrandAlwaysPresent` — empty dir,
+    missing path, and empty input all still emit the brand.
+  - `TestDetectTagsCustomGitmapSkippable` — `--vscode-tag-skip
+    gitmap` removes it.
+  - `TestDetectTagsCustomGitmapNotDuplicated` — `--vscode-tag
+    gitmap` does not double the entry.
+  - `TestDetectTagsCustomNoEnvMatchesBuiltin` updated to assert
+    `gitmap` is the leading tag in the canonical output.
+- Version bumped to `v4.34.0` across `gitmap/constants/constants.go`,
+  `src/constants/index.ts`, and the root `README.md` pinned-version
+  block + version-matrix table.
+
 ## v4.33.0 — (2026-05-06) — Fix: trailing-slash URLs no longer collapse clone target to CWD
 
 - `gitmap/cmd/clone.go` `repoNameFromURL` now strips trailing
