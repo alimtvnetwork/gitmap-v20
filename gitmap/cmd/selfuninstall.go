@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/constants"
 )
 
 // selfUninstallOpts holds parsed flags for self-uninstall.

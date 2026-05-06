@@ -3,7 +3,7 @@ package setup
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/constants"
 )
 
 // RenderPathSnippet returns the canonical marker-block PATH snippet for

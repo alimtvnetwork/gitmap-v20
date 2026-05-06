@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/constants"
 )
 
 // ArchiveHistoryRow is the persisted shape of a `gitmap zip` /

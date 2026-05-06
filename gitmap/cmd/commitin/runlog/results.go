@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/constants"
 )
 
 // RecordRewritten persists one RewrittenCommit row + (when outcome is

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/model"
 )
 
 // TestValidateRawShape_RejectsWrongTypePerKey covers the canonical

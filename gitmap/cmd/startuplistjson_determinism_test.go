@@ -35,7 +35,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/startup"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/startup"
 )
 
 // TestStartupListJSON_DeterministicAcrossRuns runs the encoder

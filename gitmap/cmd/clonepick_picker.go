@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/cliexit"
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/clonepick"
-	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/clonepick"
+	"github.com/alimtvnetwork/gitmap-v18/gitmap/constants"
 )
 
 // maybeRunClonePickPicker launches the --ask picker when requested,
