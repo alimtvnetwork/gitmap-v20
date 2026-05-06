@@ -9,7 +9,7 @@ package clonepick
 // The temp clone is NOT reused for the final sparse-checkout in v1
 // (the executor re-clones into the user's --dest). Spec §"--ask
 // picker" calls for single-clone reuse as a follow-up optimisation;
-// today's behaviour is "clone twice, but the first clone is metadata
+// today's behavior is "clone twice, but the first clone is metadata
 // only so the bytes-on-the-wire cost is negligible".
 
 import (
@@ -21,20 +21,6 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v16/gitmap/constants"
 )
-
-// listRepoPaths returns every tracked path in plan.RepoUrl. The
-// returned slice is the raw `git ls-tree` output (one path per line,
-// repo-relative, no leading slash). The temp clone is removed before
-// return -- callers that want to reuse it as the final destination
-// should call ListRepoPathsKeep instead.
-func listRepoPaths(plan Plan) ([]string, error) {
-	paths, tmp, err := ListRepoPathsKeep(plan)
-	if len(tmp) > 0 {
-		os.RemoveAll(tmp)
-	}
-
-	return paths, err
-}
 
 // ListRepoPathsKeep is the keep-clone variant: returns the path
 // list AND the temp dir that holds the metadata clone. The caller
