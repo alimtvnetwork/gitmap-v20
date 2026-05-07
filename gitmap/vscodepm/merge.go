@@ -1,14 +1,5 @@
 package vscodepm
 
-// mergePairs upserts pairs into existing by rootPath. Returns the new
-// slice plus an Added/Updated/Unchanged summary (Total set by caller).
-//
-// "Updated" counts when EITHER Name OR the union'd Paths set actually
-// changes vs. what's currently on disk. Pure no-ops increment Unchanged.
-func mergePairs(existing []Entry, pairs []Pair) ([]Entry, SyncSummary) {
-	return mergePairsWithMode(existing, pairs, MergeModeUnion)
-}
-
 // mergePairsWithMode is the mode-aware merge engine. It mutates a
 // copy of existing in place and returns the new slice + summary.
 // Tag reconciliation is delegated to mergeTags; everything else
