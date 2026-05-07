@@ -54,6 +54,15 @@ type TagReplayLookup struct {
 // (Core memory: zero-swallow, errors.Is everywhere).
 var ErrTagReplayMiss = errors.New("runlog: tag replay lookup miss")
 
+// ErrLightweightVersionTag is returned by RecordTagReplay when the
+// caller tries to persist a row with `IsVersionTag=true` for a
+// lightweight (non-annotated) tag. Strict-semver contract: only
+// annotated tags whose name matches `constants.VersionTagPattern` may
+// be classified as version tags — see ClassifyVersionTag for the
+// canonical decision. Callers MUST use errors.Is to detect this
+// (Core memory: zero-swallow, errors.Is everywhere).
+var ErrLightweightVersionTag = errors.New("runlog: lightweight tag cannot be a version tag")
+
 // RecordTagReplay persists one CommitInReplayMap row. Empty string
 // fields are stored as SQL NULL where the column is nullable per
 // spec §9.4 (DestTagSha, DestCommitSha, MirroredReleaseBranch).
