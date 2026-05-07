@@ -10,8 +10,8 @@ package constants
 
 // ---- Table-name constants -----------------------------------------
 const (
-	TableCommitInReplayMap   = "CommitInReplayMap"
-	TableCommitInTagOutcome  = "TagReplayOutcome"
+	TableCommitInReplayMap  = "CommitInReplayMap"
+	TableCommitInTagOutcome = "TagReplayOutcome"
 )
 
 // ---- Enum: TagReplayOutcome (spec §9.4) ---------------------------
