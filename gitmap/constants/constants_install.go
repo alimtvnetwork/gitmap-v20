@@ -370,7 +370,7 @@ var InstallToolCategories = map[string][]string{
 		ToolPython, ToolGo, ToolGit, ToolGitLFS, ToolGHCLI,
 		ToolGitHubDesktop, ToolCPP, ToolPHP, ToolPowerShell,
 		ToolChocolatey, ToolWinget, ToolDbeaver, ToolOBS,
-		ToolStickyNotes, ToolVSCodeCtx, ToolPwshCtx,
+		ToolStickyNotes, ToolVSCodeCtx, ToolPwshCtx, ToolCtx,
 		ToolNpp, ToolNppSettings, ToolNppInstall,
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
 		ToolScripts, ToolAllDevTools,
