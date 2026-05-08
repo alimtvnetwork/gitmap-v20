@@ -9,6 +9,7 @@ type ctxEntry struct {
 	MUIVerb  string // visible label
 	Args     []string
 	Mode     constants.CtxMode
+	Exe      string     // override executable; empty => use the gitmap binary
 	Children []ctxEntry // non-nil => this is a submenu
 }
 
