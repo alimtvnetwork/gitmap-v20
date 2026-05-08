@@ -1580,6 +1580,63 @@ gitmap alias suggest --apply
 
 ---
 
+### Right-click context menu (`gitmap install ctx`)
+
+One command wires the most-used gitmap actions into your file manager's
+right-click menu — Windows Explorer (HKCU registry cascade), macOS
+Finder (Automator Quick Actions in `~/Library/Services/`), and Linux
+Nautilus / Dolphin / Thunar. Right-click any folder, pick the action,
+and gitmap runs against that folder as cwd.
+
+```bash
+gitmap install ctx     # add the cascade
+gitmap uninstall ctx   # remove every entry written by ctx (safe, idempotent)
+```
+
+The table below is the **authoritative** mapping between menu item and
+the exact command + flags gitmap runs. It mirrors
+[`spec/04-generic-cli/30-install-ctx.md`](spec/04-generic-cli/30-install-ctx.md)
+§3 and the Go source of truth in
+[`gitmap/cmd/installctxentries.go`](gitmap/cmd/installctxentries.go).
+
+| Menu path                       | Command run                          | Mode     | Notes |
+|---------------------------------|--------------------------------------|----------|-------|
+| Scan ▸ Scan here                | `gitmap scan`                        | Terminal | Walks the clicked folder; honours all gitmap scan rules. |
+| Scan ▸ Rescan                   | `gitmap rescan`                      | Terminal | Re-runs the most recent scan against the same root. |
+| Scan ▸ Find next                | `gitmap find-next`                   | Silent   | Probes for the next `<base>-vN+1` sibling. **No `--scan-folder`** (uses cwd); **no `--json`** (output goes to the OS notification verbatim). |
+| Clone ▸ Clone-next here         | `gitmap clone-next`                  | Terminal | Flattens to the base-name folder (v2.75.0+ default); version history tracked in `RepoVersionHistory`. |
+| Clone ▸ Pull                    | `gitmap pull`                        | Terminal | Fast-forward pull on the current repo only. **`pull-all` is intentionally NOT in the menu** — it's a multi-repo batch op for power users; right-clicking a single folder shouldn't fan out across the catalog. |
+| Release ▸ Release current       | `gitmap release`                     | Terminal | Auto-bump-minor prompt; reads `latest.json` first, falls back to git tags. |
+| Release ▸ Release next          | `gitmap release --bump minor`        | Terminal | Hard-pinned to `--bump minor`. `--bump major` and `--bump patch` are deliberately not surfaced (one-click should never ship a breaking change). |
+| Release ▸ Release pull          | `gitmap release-pull`                | Terminal | `git pull` then `release`. |
+| Release ▸ Release pending       | `gitmap release-pending`             | Silent   | Reports unpublished commits since the last pinned tag. |
+| Release ▸ List releases         | `gitmap list-releases`               | Silent   | Single-repo view. **No `--all-repos`** — clicking inside one folder shouldn't surprise the user with a catalog-wide list. |
+| Release ▸ List versions         | `gitmap list-versions`               | Silent   | Local + remote version siblings. |
+| Repos ▸ Go / Node / React / C++ / C# | `gitmap go-repos` etc.          | Silent   | Filtered catalog views, surfaced via notification. |
+| Visibility ▸ Make public/private | `gitmap make-public` / `make-private` | Terminal | Confirmation prompts run in the visible terminal. |
+| Tools ▸ Fix repo                | `gitmap fix-repo`                    | Terminal | **No `--strict`** — the menu is for the fast one-shot fix; CI / scripted use is where `--strict` belongs. |
+| Tools ▸ Diff / History / Update | `gitmap diff` / `history` / `update` | Terminal | gitmap-managed wrappers. |
+| Git ▸ History (git log graph)   | `git log --oneline --graph --decorate --all -n 100` | Terminal | Raw git, bypasses gitmap. |
+| Git ▸ Diff (git diff)           | `git diff --stat HEAD`               | Terminal | Raw git. |
+| Git ▸ Log (git log)             | `git log -n 30 --pretty=format:%h %ad %s --date=short` | Terminal | Raw git. |
+| Git ▸ Status (git status)       | `git status`                         | Silent   | Raw git, into notification. |
+| Open terminal here              | (prefilled `gitmap ` prompt)         | Prefill  | Opens a terminal at the folder with `gitmap ` typed but not run. |
+| Docs                            | `gitmap docs`                        | Silent   | Opens the docs URL via OS notification handler. |
+
+**Execution modes**
+
+- **Terminal** — opens a new terminal window that stays open after the
+  command exits, so you can read multi-line output (`pwsh -NoExit` on
+  Windows, Terminal.app via `osascript` on macOS, `x-terminal-emulator`
+  on Linux).
+- **Silent** — runs hidden; first ~200 chars of stdout/stderr surface
+  via `msg.exe` (Windows), `display notification` (macOS), or
+  `notify-send` with `echo` fallback (Linux).
+- **Prefill** — opens a terminal and writes `gitmap ` at the prompt
+  without pressing Enter — for ad-hoc commands.
+
+---
+
 <div align="center">
 
 ## 🚀 gitmap Release
