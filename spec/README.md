@@ -189,6 +189,7 @@ A production-quality CLI implementation blueprint usable as a starting point for
 | 17 | [progress-tracking.md](04-generic-cli/17-progress-tracking.md) | Progress tracking |
 | 18 | [batch-execution.md](04-generic-cli/18-batch-execution.md) | Batch execution |
 | 19 | [shell-completion.md](04-generic-cli/19-shell-completion.md) | Shell completion |
+| 30 | [install-ctx.md](04-generic-cli/30-install-ctx.md) | Right-click context menu (Win/macOS/Linux) — §3 has the authoritative menu→flag mapping for scan / clone-next / pull / release-next / find-next |
 
 ---
 
