@@ -3,7 +3,6 @@
 package cmd
 
 import (
-	"encoding/xml"
 	"os"
 	"path/filepath"
 	"strings"
