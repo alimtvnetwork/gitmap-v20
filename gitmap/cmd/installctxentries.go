@@ -83,3 +83,16 @@ func toolsChildren() []ctxEntry {
 		{KeyName: "40_update", MUIVerb: "Update", Args: []string{constants.CmdUpdate}, Mode: constants.CtxModeTerminal},
 	}
 }
+
+// gitChildren returns the raw-git submenu. These entries shell out to
+// `git` directly (Exe override) so users can inspect repository state
+// in a terminal viewer without launching gitmap. All are Terminal mode
+// because the output is multi-line and worth reading.
+func gitChildren() []ctxEntry {
+	return []ctxEntry{
+		{KeyName: "10_history", MUIVerb: constants.CtxGitHistoryLabel, Args: constants.CtxGitHistoryArgs, Exe: constants.CtxExeGit, Mode: constants.CtxModeTerminal},
+		{KeyName: "20_diff", MUIVerb: constants.CtxGitDiffLabel, Args: constants.CtxGitDiffArgs, Exe: constants.CtxExeGit, Mode: constants.CtxModeTerminal},
+		{KeyName: "30_log", MUIVerb: constants.CtxGitLogLabel, Args: constants.CtxGitLogArgs, Exe: constants.CtxExeGit, Mode: constants.CtxModeTerminal},
+		{KeyName: "40_status", MUIVerb: constants.CtxGitStatusLabel, Args: constants.CtxGitStatusArgs, Exe: constants.CtxExeGit, Mode: constants.CtxModeSilent},
+	}
+}
