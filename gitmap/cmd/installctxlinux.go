@@ -166,13 +166,15 @@ func dolphinExec(e flatCtxEntry, exe string) string {
 	if guard != "" {
 		guard += " && "
 	}
+	echoSh := ctxExplainPrefixSh(target, e.Args)
+	announce := ctxExplainAnnounce(target, e.Args)
 	switch e.Mode {
 	case constants.CtxModePrefill:
 		return `cd "%f" && x-terminal-emulator -e sh -c 'printf "gitmap "; exec $SHELL'`
 	case constants.CtxModeSilent:
-		return fmt.Sprintf(`cd "%%f" && %sOUT=$('%s' %s 2>&1) && notify-send 'gitmap' "$OUT"`, guard, target, args)
+		return fmt.Sprintf(`cd "%%f" && %sOUT=$(printf %%%%s '%s'; '%s' %s 2>&1) && notify-send 'gitmap' "$OUT"`, guard, announce, target, args)
 	default:
-		return fmt.Sprintf(`cd "%%f" && %sx-terminal-emulator -e sh -c "'%s' %s; exec $SHELL"`, guard, target, args)
+		return fmt.Sprintf(`cd "%%f" && %sx-terminal-emulator -e sh -c "%s'%s' %s; exec $SHELL"`, guard, echoSh, target, args)
 	}
 }
 
