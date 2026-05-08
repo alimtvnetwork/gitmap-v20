@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
 )
 
@@ -19,18 +21,30 @@ type flatCtxEntry struct {
 
 // flattenCtxMenu walks ctxMenu() into a flat list. Categories with
 // children become "<prefix>: <Category> — <Child>"; top-level leaves
-// become "<prefix>: <Label>". Order is preserved.
+// become "<prefix>: <Label>". Order is preserved. Duplicate slugs
+// (e.g. the intentionally double-listed 90_terminal / 91_docs Windows
+// shortcuts) are collapsed to the FIRST occurrence so the per-leaf
+// destinations on macOS/Linux (one .workflow / Nautilus script /
+// Dolphin Action / Thunar <unique-id>) never collide.
 func flattenCtxMenu() []flatCtxEntry {
 	var out []flatCtxEntry
+	seen := map[string]bool{}
+	add := func(e flatCtxEntry) {
+		if seen[e.Slug] {
+			return
+		}
+		seen[e.Slug] = true
+		out = append(out, e)
+	}
 	for _, e := range ctxMenu() {
 		if len(e.Children) > 0 {
 			for _, c := range e.Children {
-				out = append(out, flatEntry(e.MUIVerb, c))
+				add(flatEntry(e.MUIVerb, c))
 			}
 
 			continue
 		}
-		out = append(out, flatEntry("", e))
+		add(flatEntry("", e))
 	}
 
 	return out
@@ -57,8 +71,13 @@ func flatEntry(category string, e ctxEntry) flatCtxEntry {
 
 // slugifyCtx returns a filesystem-safe id: lowercase alphanumerics
 // joined by "-". Used as workflow folder, .desktop file, and Nautilus
-// script base names.
+// script base names. Common disambiguating glyphs (`+`, `#`) are
+// transliterated to letters BEFORE the strip pass so labels like
+// "C++ projects" vs "C# projects" do not collide on the same slug.
 func slugifyCtx(s string) string {
+	s = strings.ReplaceAll(s, "++", "pp")
+	s = strings.ReplaceAll(s, "+", "p")
+	s = strings.ReplaceAll(s, "#", "sharp")
 	out := make([]byte, 0, len(s))
 	dashed := false
 	for i := 0; i < len(s); i++ {
