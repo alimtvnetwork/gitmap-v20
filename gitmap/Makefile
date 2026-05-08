@@ -1,4 +1,4 @@
-.PHONY: build run test update no-pull no-deploy clean help generate cross cross-startup
+.PHONY: build run test update no-pull no-deploy clean help generate cross cross-startup fmt
 
 SHELL := /bin/bash
 
