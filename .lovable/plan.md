@@ -1,72 +1,72 @@
-# Commit-In Tag Mirroring + Migration 006
+## Goal
 
-Implements spec/03-commit-in/08-tag-mirroring-and-release-branches.md per the existing memory rule (`COMMIT-IN TAG MIRRORING`). Inline per-commit mirror inside stage 14, persisted into two new `RewrittenCommit` columns. Idempotent migration 006. CLI + profile JSON wired through the existing precedence chain.
+Break the 2,216-line `.github/workflows/ci.yml` into small, focused, reusable pieces so no single file exceeds ~150 lines and each piece has one responsibility. We do this incrementally over **5 steps**, one per turn. After each step you review and say "next" before I move on.
 
-## Scope check (already in tree, do NOT recreate)
+## Approach (technical)
 
-- `gitmap/constants/constants_commitin_tagreplay.go` — `VersionTagPattern` regex constant exists.
-- `gitmap/constants/constants_commitin_tagreplay_sql.go` — likely holds the column/index DDL strings; confirm before duplicating.
-- `gitmap/cmd/commitin/runlog/tagreplay.go` — runlog surface for "would mirror" messages already present.
-- `gitmap/store/migrate_commitin_replaymap_*` — sibling migration tests as the pattern reference.
-- `constants.ReleaseBranchPrefix = "release/"` — reuse, never copy.
+GitHub Actions does not let one workflow span multiple files, but it gives us two tools:
 
-If any of the above already implements part of this spec, the plan step that touches it becomes a verification step, not a fresh write.
+1. **Reusable workflows** (`on: workflow_call`) — extract a group of related jobs into `.github/workflows/_<name>.yml`, then call them from `ci.yml` with `uses: ./.github/workflows/_<name>.yml`.
+2. **Composite actions** (`.github/actions/<name>/action.yml`) — extract repeated step sequences (checkout + setup-go + cache, misspell install, lint baseline diff, etc.) into a single referenceable action.
 
-## Step 1 — Migration 006 (schema + enum seed)
+End state: `ci.yml` becomes a thin orchestrator (~150 lines) that wires together reusable workflows + composite actions. Each extracted file stays under ~150 lines.
 
-- New file `gitmap/store/migrations/006_commit_in_tag_mirroring.sql` (or whatever the existing migration directory convention is — scan first).
-- DDL exactly per §8.5: idempotent `ADD COLUMN MirroredTagName TEXT NULL`, `ADD COLUMN MirroredReleaseBranch TEXT NULL`, two `CREATE INDEX IF NOT EXISTS` lines.
-- Seed `TagsMode (TagsModeId, Name UNIQUE)` enum table with `Annotated`, `All`, `None` (per §8.6). Use `INSERT OR IGNORE` so re-runs are no-ops.
-- Register migration in the migration runner (follow whatever 005 does — likely a `migrations` slice in `gitmap/store/migrate*.go`).
-- Add a `migrate_commitin_tagmirror_test.go` covering: fresh DB applies cleanly, second apply is a no-op, columns exist as TEXT NULL, both indexes present, enum table seeded with exactly 3 rows.
+## Target layout
 
-## Step 2 — CLI + profile plumbing
+```text
+.github/
+  actions/
+    setup-go-cached/action.yml         # checkout + setup-go + GOMODCACHE/GOCACHE cache
+    install-misspell/action.yml        # pinned v0.3.4 install
+    install-golangci-lint/action.yml   # pinned v1.64.8 install
+    baseline-diff/action.yml           # per-linter baseline-vs-head diff
+  workflows/
+    ci.yml                             # orchestrator only (~150 lines)
+    _diagnostics.yml                   # diag, sha-check, ci-errors-digest
+    _lint.yml                          # spell-check, lint, lint-script-tests
+    _lint-baseline.yml                 # lint-baseline-guard, lint-baseline-diff
+    _repo-policy.yml                   # cmd-naming, legacy-refs, deploy-layout,
+                                       #   constants-naming, constants-collision,
+                                       #   golden-allow-leak, generate-check
+    _security-tests.yml                # vulncheck, json-snapshot-fast, test,
+                                       #   full-suite-guard
+    _smoke.yml                         # installer-smoke, installer-smoke-windows
+    _build.yml                         # build, build-summary
+    _summaries.yml                     # pr-summary, test-summary
+```
 
-- Extend `gitmap/cmd/commitin/parse_flags.go` (or sibling) with `--tags`, `--no-release-branch`, `--release-branch-prefix`. Defaults per §8.2.
-- Validation rules in `parse_validate.go`:
-  - `--tags=None` + any other tag-mirroring flag → exit `BadArgs` (2) with the literal spec message.
-  - `--release-branch-prefix` not ending in `/` → exit `BadArgs` (2).
-- Profile JSON: extend the profile struct (in `gitmap/cmd/commitin/profile/`) with `TagsMode`, `CreateReleaseBranch`, `ReleaseBranchPrefix`. Apply the existing CLI > profile > default precedence (mirror what other commit-in flags already do — do NOT introduce a new merge mechanism).
-- Add table-driven parse + validate tests for each rejection path AND the default-resolution path.
-- Add the marker comment for completion generator opt-in (`// gitmap:cmd ...`) per the v3.0.0 mechanism.
+Job dependencies (`needs:`) and SHA-dedup passthrough are preserved by passing inputs/outputs between reusable workflows.
 
-## Step 3 — gitutil tag/branch primitives
+## The 5 steps
 
-- New file `gitmap/gitutil/tags.go` (only if not already present — grep first):
-  - `AnnotatedTagsAt(repoDir, sha string, mode TagsMode) ([]TagRef, error)` — shells out to `git for-each-ref refs/tags --points-at <sha> --format=...` filtered by `objecttype=tag` for Annotated mode. Returns `Name`, `TaggerName`, `TaggerEmail`, `TaggerDate`, `Message`.
-  - `CreateAnnotatedTag(repoDir, name, sha, taggerIdent, taggerDate, message string) error` — uses `GIT_COMMITTER_NAME/EMAIL/DATE` env injection + `git tag -a -m <msg>` so the tag's tagger ident/date are byte-faithful to the source.
-  - `CreateBranchAt(repoDir, name, sha string) error` — `git branch <name> <sha>`. If branch exists with same SHA, no-op; if exists at different SHA, return a typed error so the caller can classify as `PartiallyFailed`.
-- Unit tests use the existing test-repo helpers (look at how `replay_test.go` builds throwaway repos).
+**Step 1 — Composite actions (foundation).**
+Create `.github/actions/setup-go-cached`, `install-misspell`, `install-golangci-lint`, `baseline-diff`. Refactor existing jobs in `ci.yml` in place to use them. No job graph changes yet. This shrinks `ci.yml` by ~300 lines and proves the pattern.
 
-## Step 4 — Stage 14 wiring + persistence
+**Step 2 — Extract `_diagnostics.yml` + `_summaries.yml`.**
+Move `diag`, `sha-check`, `ci-errors-digest`, `pr-summary`, `test-summary` into two reusable workflows. Wire them from `ci.yml` with `uses:` and pass through the SHA-dedup output. Lowest-risk extraction (no `needs:` from other jobs depend on their internals).
 
-- Touch `gitmap/cmd/commitin/orchestrator/commit.go` (the per-commit driver). Inline expansion of stage 14 per §8.4:
-  - After `replay.ApplyCommit` + the existing `RewrittenCommit` insert, call `gitutil.AnnotatedTagsAt` filtered by the resolved `TagsMode`.
-  - For each tag: mirror it; if version-tag and `CreateReleaseBranch` and not `--dry-run`, create the branch.
-  - Persist into the FIRST tag's existing `RewrittenCommit` row via a new store method `store.UpdateMirroredTagAndBranch(rewId, tagName, branchName)` — single transaction with the InsertRewrittenCommit if possible.
-  - Additional tags: insert sibling `Skipped/AdditionalTagAlias` rows. This requires adding `AdditionalTagAlias` to the `SkipReason` enum (its own seed in migration 006).
-- `--dry-run`: tag detection still runs; mutations skipped; both columns remain NULL; runlog records the would-mirror lines.
-- Failures during tag/branch creation → run is `PartiallyFailed` (exit 1), but the replay commit row is still `Created`. Use the existing zero-swallow error pattern (log to `os.Stderr` with the standardized format).
+**Step 3 — Extract `_lint.yml` + `_lint-baseline.yml`.**
+Move `spell-check`, `lint`, `lint-script-tests`, `lint-baseline-guard`, `lint-baseline-diff`. Largest single win (~1,000 lines out of `ci.yml`). Verify baseline-diff job still reads the same `main` baseline correctly across the workflow_call boundary.
 
-## Step 5 — End-to-end tests + memory refresh
+**Step 4 — Extract `_repo-policy.yml` + `_smoke.yml`.**
+Move the 7 repo-policy checks and both installer-smoke jobs. These already shell out to `.github/scripts/*.sh` so the YAML is thin — easy lift.
 
-- New `gitmap/cmd/commitin/e2e/tag_mirror_test.go` covering the §8.7 acceptance matrix T1–T7 verbatim. Reuse `e2e/repo.go` builders. Each row gets one subtest.
-- Extend `runlog_test.go` for the dry-run "would mirror" surface.
-- Update `mem://features/commit-in-tag-mirroring` to remove "(spec §08, not yet implemented)" and add the migration number, the file paths touched, and the SkipReason enum addition.
-- Bump `Current version` core memory line + add a one-line entry to changelog if the project keeps one.
+**Step 5 — Extract `_security-tests.yml` + `_build.yml`; finalize orchestrator.**
+Move `vulncheck`, `json-snapshot-fast`, `test`, `full-suite-guard`, `build`, `build-summary`. Then trim `ci.yml` to just `on:` triggers + concurrency + the `uses:` graph. Final pass: confirm every file ≤ ~150 lines, all `needs:` edges preserved, full pipeline green on a test PR.
 
-## Out of scope (explicit non-goals)
+## Guardrails (carried through every step)
 
-- No retroactive tag mirroring for already-rewritten history (would need a separate `gitmap commit-in retag` command — not in this spec).
-- No lightweight-tag round-trip for `--tags=Annotated` (spec frozen on this).
-- No edits to migrations 001–005 (project rule).
+- Pinned tool versions stay pinned (`golangci-lint@v1.64.8`, `govulncheck@v1.1.4`, `misspell@v0.3.4`).
+- SHA-dedup passthrough gate is preserved end-to-end.
+- `cancel-in-progress: false` for `release/**` stays intact (per `spec/02-app-issues/18`).
+- No `cd` in CI — `working-directory` only.
+- Each PR/step is independently revertable.
+- After each step I list what's done and what remains, and wait for your "next".
 
-## Verification gates before claiming done
+## Verification per step
 
-1. `go test ./gitmap/store/...` migration tests green on a fresh DB AND on an upgraded one.
-2. `go test ./gitmap/cmd/commitin/...` covers all 7 acceptance rows.
-3. `gofmt -l gitmap/` clean (auto-handled by fix-repo gofmt rule, but manually verify on touched files).
-4. `--tags=None + --no-release-branch` exits 2 with the literal spec message.
-5. Inspect a real test SQLite after a T1 run: `SELECT MirroredTagName, MirroredReleaseBranch FROM RewrittenCommit` returns `('v1.2.3', 'release/v1.2.3')`.
+1. `actionlint` (or `yamllint`) on every changed workflow file.
+2. Push to a throwaway branch, confirm the full job matrix renders identically in the GitHub UI (same job names, same `needs:` edges).
+3. Re-check line counts — fail the step if any file > 150 lines.
 
-Reply `proceed` to start with Step 1.
+Ready to execute Step 1 on your go.
