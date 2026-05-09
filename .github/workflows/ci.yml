@@ -1974,59 +1974,21 @@ jobs:
         run: bash .github/scripts/test-summary.sh results
 
       - name: Coverage report
+        # Merges per-package coverage profiles from every matrix leg
+        # and prints a per-package + total breakdown. Implementation
+        # extracted to .github/scripts/coverage-report.sh — keeps the
+        # workflow readable and lets the script be unit-tested.
         if: always() && needs.sha-check.outputs.already-built != 'true'
         working-directory: gitmap
         shell: bash
-        run: |
-          echo ""
-          echo "========================================="
-          echo "  COVERAGE BY PACKAGE"
-          echo "========================================="
+        run: bash ../.github/scripts/coverage-report.sh results
 
-          # Merge all coverage profiles
-          echo "mode: atomic" > combined-coverage.out
-          for f in ../results/test-results-*/coverage-*.out; do
-            if [ -f "$f" ]; then
-              grep -v '^mode:' "$f" >> combined-coverage.out 2>/dev/null || true
-            fi
-          done
-
-          if [ "$(wc -l < combined-coverage.out)" -le 1 ]; then
-            echo "No coverage data collected."
-            exit 0
-          fi
-
-          # Per-package breakdown
-          go tool cover -func=combined-coverage.out | \
-            awk '
-              /^total:/ { total=$NF; next }
-              {
-                pkg=$1; sub(/\/[^/]+$/, "", pkg)
-                if (!(pkg in seen)) { seen[pkg]=1; order[++n]=pkg }
-                split($NF, a, "%"); pct[pkg] += a[1]; cnt[pkg]++
-              }
-              END {
-                for (i=1; i<=n; i++) {
-                  p = order[i]
-                  avg = pct[p] / cnt[p]
-                  printf "  %-55s %5.1f%%\n", p, avg
-                }
-                printf "\n  %-55s %s\n", "Total", total
-              }
-            '
-
-          echo "========================================="
-
+      # SHA-dedup passthrough: stamp + save the per-commit cache entry
+      # so subsequent pushes of the same SHA short-circuit the whole
+      # pipeline. Two-step composite — see .github/actions/mark-sha-built.
       - name: Mark SHA as built
         if: success() && needs.sha-check.outputs.already-built != 'true'
-        run: mkdir -p /tmp/ci-passed && echo "${{ github.sha }}" > /tmp/ci-passed/sha.txt
-
-      - name: Save SHA to cache
-        if: success() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: /tmp/ci-passed
-          key: ci-passed-${{ github.sha }}
+        uses: ./.github/actions/mark-sha-built
 
   ci-errors-digest:
     # Single consolidated error block printed to the run log so the
