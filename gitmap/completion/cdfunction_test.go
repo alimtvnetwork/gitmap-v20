@@ -73,7 +73,7 @@ func TestAppendCDFunctionDoesNotSkipPathSnippetMarker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read profile failed: %v", err)
 	}
-	if strings.Count(string(data), constants.CDFuncMarker) != 1 {
+	if countCDFunctionStartMarkers(string(data)) != 1 {
 		t.Fatal("expected command wrapper after legacy PATH snippet marker")
 	}
 }
@@ -104,7 +104,7 @@ func TestAppendCDFunctionAppendsManagedWrapperAfterLegacyMarker(t *testing.T) {
 	if !strings.Contains(text, constants.CDFuncMarker) {
 		t.Fatal("expected managed wrapper marker to be appended")
 	}
-	if strings.Count(text, constants.CDFuncMarker) != 1 {
+	if countCDFunctionStartMarkers(text) != 1 {
 		t.Fatal("expected exactly one managed wrapper marker")
 	}
 }
@@ -210,4 +210,18 @@ func TestRenderPowerShellCommandShimPinsInstalledExe(t *testing.T) {
 			t.Fatalf("shim missing %q\n%s", want, got)
 		}
 	}
+}
+
+// countCDFunctionStartMarkers counts lines that exactly start with the
+// managed start marker, excluding the end marker (which has the start
+// marker as a prefix and would otherwise inflate the count).
+func countCDFunctionStartMarkers(text string) int {
+	count := 0
+	for _, line := range strings.Split(text, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == constants.CDFuncMarker {
+			count++
+		}
+	}
+	return count
 }

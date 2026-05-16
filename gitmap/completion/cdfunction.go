@@ -102,7 +102,7 @@ func appendCDFunction(snippet, profilePath string) error {
 	if err == nil {
 		text := string(existing)
 		if hasCurrentCDFunction(text) {
-			next := moveCDFunctionToEnd(text, snippet)
+			next := reconcileCDFunction(text, snippet)
 			if next == text {
 				fmt.Fprintf(os.Stderr, constants.MsgCDFuncAlready)
 
@@ -157,6 +157,32 @@ func replaceCDFunction(text, snippet string) string {
 	replacement := constants.CDFuncMarker + "\n" + snippet
 
 	return text[:start] + replacement + text[end:]
+}
+
+func reconcileCDFunction(text, snippet string) string {
+	start := strings.Index(text, constants.CDFuncMarker)
+	if start < 0 {
+		return text
+	}
+	endRel, marker := findCDFunctionEnd(text[start:])
+	if endRel < 0 {
+		return text
+	}
+	blockEnd := start + endRel + len(marker)
+
+	desired := constants.CDFuncMarker + "\n" + snippet
+	existing := text[start:blockEnd]
+	after := text[blockEnd:]
+	trailingSignificant := strings.TrimSpace(after) != ""
+
+	if existing == desired && !trailingSignificant {
+		return text
+	}
+	if !trailingSignificant {
+		return text[:start] + desired + after
+	}
+
+	return appendBlock(text[:start]+after, desired)
 }
 
 func moveCDFunctionToEnd(text, snippet string) string {
