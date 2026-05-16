@@ -102,7 +102,7 @@ func appendCDFunction(snippet, profilePath string) error {
 	if err == nil {
 		text := string(existing)
 		if hasCurrentCDFunction(text) {
-			next := moveCDFunctionToEnd(text, snippet)
+			next := reconcileCDFunction(text, snippet)
 			if next == text {
 				fmt.Fprintf(os.Stderr, constants.MsgCDFuncAlready)
 
