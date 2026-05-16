@@ -1176,6 +1176,8 @@ function Main {
         # Bundle the docs site so `gitmap help-dashboard` works after install.
         Install-DocsSite $resolvedVersion $resolvedDir
 
+        Install-PowerShellShim $resolvedDir
+
         $pathResult = @{ Target = "-NoPath"; Status = "skipped" }
         if (-not $NoPath) {
             $pathResult = Add-ToPath $resolvedDir
