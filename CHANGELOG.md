@@ -1,5 +1,22 @@
 # Changelog
 
+## v5.5.0 — (2026-05-16) — Add PowerShell command shim for `gitmap cd`
+
+### Fixed
+
+- `gitmap cd <repo>` on Windows now has a second activation path: the installer
+  writes `gitmap.ps1` beside `gitmap.exe`, and PowerShell prefers the script shim
+  over the exe when the install directory is on PATH. The shim runs in-process,
+  calls the real exe, captures the resolved path, and runs `Set-Location` in the
+  current PowerShell session.
+- Root cause of the repeated failure: a profile function can only work after the
+  correct profile is loaded, but the user was still reaching the raw exe. Relying
+  only on `$PROFILE` reload was therefore insufficient; the PATH-level `.ps1`
+  shim removes that dependency for PowerShell sessions.
+- The Windows installer now force-rewrites stale `# gitmap command wrapper v1`
+  profile blocks instead of treating the marker as proof the current body is
+  correct.
+
 ## v5.4.0 — (2026-05-16) — Install PowerShell command wrapper from installer profile block
 
 ### Fixed
