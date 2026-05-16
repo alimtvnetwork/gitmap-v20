@@ -800,6 +800,10 @@ function Add-CommandWrapperToProfile([string]$profilePath, [string]$dir) {
     return $true
 }
 
+function Install-CommandWrapperForSession([string]$dir) {
+    Invoke-Expression (Get-GitmapCommandWrapperBlock $dir)
+}
+
 function Broadcast-EnvironmentChange {
     Add-Type -TypeDefinition @"
 using System;
@@ -894,6 +898,8 @@ function Add-ToPath([string]$dir) {
             Write-OK "Added gitmap cd command wrapper to PowerShell profile."
             $modified += "PowerShell command wrapper"
         }
+
+        Install-CommandWrapperForSession $dir
     }
 
     # --- 3. Git Bash profiles (~/.bashrc, ~/.bash_profile) ---
