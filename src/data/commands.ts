@@ -658,7 +658,7 @@ export const commands: CommandDef[] = [
     ],
     seeAlso: [
       { name: "replace", description: "Broader find/replace (literal or version) across all text files" },
-      { name: "release-pull", description: "Pull-then-release the current repo after fixing tokens" },
+      { name: "pull-release", description: "Pull-then-release the current repo after fixing tokens" },
       { name: "clone-next", description: "Clone the next versioned iteration of the current repo" },
     ],
   },
