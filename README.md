@@ -4,10 +4,10 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-[![CI](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/ci.yml)
-[![Vulnerability Scan](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/vulncheck.yml?branch=main&style=flat-square&label=vulnerability%20scan)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/vulncheck.yml)
-[![Cross-Platform Build](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/cross-platform.yml?branch=main&style=flat-square&label=cross-platform%20build)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/cross-platform.yml)
-[![Startup Build-Tag Guard](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/startup-build-tags.yml?branch=main&style=flat-square&label=startup%20build-tag%20guard)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/startup-build-tags.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/ci.yml?style=flat-square&label=CI)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/ci.yml)
+[![Vulnerability Scan](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/vulncheck.yml?style=flat-square&label=vulnerability%20scan)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/vulncheck.yml)
+[![Cross-Platform Build](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/cross-platform.yml?style=flat-square&label=cross-platform%20build)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/cross-platform.yml)
+[![Startup Build-Tag Guard](https://img.shields.io/github/actions/workflow/status/alimtvnetwork/gitmap-v20/startup-build-tags.yml?style=flat-square&label=startup%20build-tag%20guard)](https://github.com/alimtvnetwork/gitmap-v20/actions/workflows/startup-build-tags.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/alimtvnetwork/gitmap-v20?style=flat-square&label=version)](https://github.com/alimtvnetwork/gitmap-v20/releases)
 [![Go](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)](https://github.com/alimtvnetwork/gitmap-v20)
