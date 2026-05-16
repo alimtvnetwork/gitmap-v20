@@ -1,9 +1,10 @@
 package constants
 
-// release-pull mode flags and messages. Mode flags are mutually
-// exclusive; --ff-only is the safe default. The --merge mode passes
-// `--no-rebase` to git so it overrides any user-level
-// `pull.rebase=true` setting.
+// pull-release mode flags and messages (canonical command name as of
+// v5.6.0 — the legacy `release-pull` alias still routes here). Mode
+// flags are mutually exclusive; --ff-only is the safe default. The
+// --merge mode passes `--no-rebase` to git so it overrides any
+// user-level `pull.rebase=true` setting.
 const (
 	FlagRPFFOnly  = "ff-only"
 	FlagRPRebase  = "rebase"
