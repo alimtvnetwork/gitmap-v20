@@ -53,7 +53,7 @@ func CreateRepo(owner, repoName string, private bool) error {
 	}
 
 	// Try org endpoint first; if 404, fall back to user endpoint.
-	err := createOrgRepo(owner, repoName, private, token)
+	err = createOrgRepo(owner, repoName, private, token)
 	if err == nil {
 		return nil
 	}

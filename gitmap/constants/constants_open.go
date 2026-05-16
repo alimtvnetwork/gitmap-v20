@@ -8,7 +8,7 @@ package constants
 
 // gitmap:cmd top-level
 // Open command help-line entry surfaced by `gitmap help`.
-const HelpOpen = "  open (op)                              Open current repo in GitHub Desktop AND VS Code"
+const HelpCmdOpen = "  open (op)                              Open current repo in GitHub Desktop AND VS Code"
 
 // Open command messages.
 const (
