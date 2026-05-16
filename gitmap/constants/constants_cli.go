@@ -329,7 +329,7 @@ const (
 	HelpStatus           = "  status (st)         Show dirty/clean, ahead/behind, stash for all repos"
 	HelpExec             = "  exec (x) <args...>  Run any git command across all repos"
 	HelpRelease          = "  release (r) [ver]   Create release branch, tag, and push"
-	HelpReleasePull      = "  release-pull (relp) [ver]  git pull --ff-only, then release the current repo"
+	HelpReleasePull      = "  pull-release (pr) [ver]    git pull (--ff-only|--rebase|--merge), then release the current repo"
 	HelpReleaseBr        = "  release-branch (rb) Complete release from existing release branch"
 	HelpReleasePend      = "  release-pending (rp) Release all pending branches without tags"
 	HelpFixRepo          = "  fix-repo (fr)       Rewrite prior {base}-vN tokens (-2/-3/-5/--all/--dry-run)"
