@@ -69,6 +69,7 @@ func buildReleaseGroup() llmCmdGroup {
 			{"release-self", "rs", "Release gitmap itself from any directory", "gitmap release-self --bump minor"},
 			{"release-branch", "rb", "Create a release branch without tagging", "gitmap release-branch v2.50.0"},
 			{"temp-release", "tr", "Create lightweight temp release branches", "gitmap tr 10 v1.$$ -s 5"},
+			{"pull-release", "pr", "git pull (ff/rebase/merge), then release current repo", "gitmap pull-release --rebase v1.4.0"},
 		},
 	}
 }
