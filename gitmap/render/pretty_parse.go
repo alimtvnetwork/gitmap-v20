@@ -10,6 +10,7 @@ const (
 	bkHeading
 	bkSubtitle
 	bkFence
+	bkList
 	bkBlank
 )
 
@@ -51,6 +52,10 @@ func parse(lines []string) []block {
 		case strings.TrimSpace(line) == "":
 			out = append(out, block{kind: bkBlank})
 			i++
+		case isListItem(line):
+			items, next := readList(lines, i)
+			out = append(out, block{kind: bkList, lines: items})
+			i = next
 		default:
 			para, next := readParagraph(lines, i)
 			out = append(out, block{kind: bkParagraph, text: para})
@@ -111,7 +116,7 @@ func readParagraph(lines []string, start int) (string, int) {
 	i := start
 	for i < len(lines) {
 		line := lines[i]
-		if strings.TrimSpace(line) == "" || isHeading(line) || isFence(line) {
+		if strings.TrimSpace(line) == "" || isHeading(line) || isFence(line) || isListItem(line) {
 			break
 		}
 		buf = append(buf, line)
@@ -169,4 +174,27 @@ func stripItalic(line string) string {
 // equivalence checks (rule 1).
 func normalize(s string) string {
 	return strings.Join(strings.Fields(strings.ToLower(s)), " ")
+}
+
+// isListItem matches bullet (- / *) and table (|) rows so they render
+// as discrete padded lines instead of being collapsed into a paragraph.
+func isListItem(line string) bool {
+	t := strings.TrimLeft(line, " ")
+	if strings.HasPrefix(t, "- ") || strings.HasPrefix(t, "* ") {
+		return true
+	}
+
+	return strings.HasPrefix(t, "|")
+}
+
+// readList gathers consecutive list / table rows into a single block.
+func readList(lines []string, start int) ([]string, int) {
+	var out []string
+	i := start
+	for i < len(lines) && isListItem(lines[i]) {
+		out = append(out, lines[i])
+		i++
+	}
+
+	return out, i
 }

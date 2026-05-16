@@ -19,6 +19,10 @@ const (
 	TokCyanClose   = "[/C]"
 	TokMutedOpen   = "[M]"
 	TokMutedClose  = "[/M]"
+	TokGreenOpen   = "[G]"
+	TokGreenClose  = "[/G]"
+	TokMagentaOpen = "[P]"
+	TokMagentaClose = "[/P]"
 
 	collapseArrow = "→ "
 	bodyIndent    = "  "
@@ -78,6 +82,10 @@ func tokenToANSI() *strings.Replacer {
 		TokCyanClose, constants.ColorReset,
 		TokMutedOpen, constants.ColorDim,
 		TokMutedClose, constants.ColorReset,
+		TokGreenOpen, constants.ColorGreen,
+		TokGreenClose, constants.ColorReset,
+		TokMagentaOpen, constants.ColorMagenta,
+		TokMagentaClose, constants.ColorReset,
 	)
 }
 
