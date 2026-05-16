@@ -1,19 +1,21 @@
 ---
-name: cfrp/cfr skip fix-repo on no-vN
-description: clone-fix-repo / clone-fix-repo-pub gracefully skip the fix-repo step (with a one-line notice) when the cloned repo has no -vN suffix; --require-version restores the strict E_NO_VERSION_SUFFIX exit. v4.43.0+.
+name: cfrp/cfr remote-based no-vN detection
+description: clone-fix-repo / cfrp must decide no-vN from the cloned Git remote repo name, not the flattened local folder; skip only when the remote repo lacks -vN. v5.1.0+.
 type: feature
 ---
 
-# Feature: cfrp/cfr skip fix-repo on no-vN suffix (v4.43.0+)
+# Feature: cfrp/cfr remote-based no-vN detection (v5.1.0+)
 
 ## Rule
 `gitmap clone-fix-repo` (cfr) and `gitmap clone-fix-repo-pub` (cfrp)
-MUST NOT fail their pipeline when the cloned repo's folder name has
-no `-vN` suffix. Skip the fix-repo step with a single notice line and
-continue to make-public (cfrp only).
+MUST check the cloned Git remote repo name for the `-vN` suffix, not
+the flattened local destination folder. Example: cloning
+`https://github.com/alimtvnetwork/gitmap-v20` into local folder
+`gitmap/` MUST still run `fix-repo --all` because the remote repo is
+versioned.
 
 ## Behavior
-- Default: skip with `fix-repo: skipped (repo "<name>" has no -vN suffix, nothing to rewrite)`. Exit 0.
+- Default: skip with `fix-repo: skipped (repo "<name>" has no -vN suffix, nothing to rewrite)` only when the Git remote repo name lacks `-vN`. Exit 0.
 - `--require-version` flag: restore strict mode → exit `ExitCloneFixRepoChainFailed` (10) with a clear "ERROR --require-version set" message.
 
 ## Why
@@ -26,7 +28,7 @@ there's nothing to rewrite — so the correct default is "skip silently
 (with a notice)".
 
 ## Files
-- `gitmap/cmd/clonefixrepo.go::maybeRunFixRepoStep` — gates the chained step on `clonenext.ParseRepoName(...).HasVersion`.
+- `gitmap/cmd/clonefixrepo.go::maybeRunFixRepoStep` — gates the chained step on remote-derived repo identity, falling back to local folder only if remote lookup fails.
 - `gitmap/constants/constants_clonefixrepo.go` — `FlagRequireVersion`, `MsgCloneFixRepoSkipNoVer`, `ErrCloneFixRepoNeedVersion`.
 
 ## Spec
