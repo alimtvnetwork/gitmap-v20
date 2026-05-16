@@ -175,3 +175,26 @@ func stripItalic(line string) string {
 func normalize(s string) string {
 	return strings.Join(strings.Fields(strings.ToLower(s)), " ")
 }
+
+// isListItem matches bullet (- / *) and table (|) rows so they render
+// as discrete padded lines instead of being collapsed into a paragraph.
+func isListItem(line string) bool {
+	t := strings.TrimLeft(line, " ")
+	if strings.HasPrefix(t, "- ") || strings.HasPrefix(t, "* ") {
+		return true
+	}
+
+	return strings.HasPrefix(t, "|")
+}
+
+// readList gathers consecutive list / table rows into a single block.
+func readList(lines []string, start int) ([]string, int) {
+	var out []string
+	i := start
+	for i < len(lines) && isListItem(lines[i]) {
+		out = append(out, lines[i])
+		i++
+	}
+
+	return out, i
+}
