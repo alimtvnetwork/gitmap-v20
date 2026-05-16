@@ -1,5 +1,14 @@
 # Changelog
 
+## v5.10.0 — (2026-05-16) — Force PowerShell wrapper to load last
+
+### Fixed
+- `gitmap setup` / installer rewrites now move the managed PowerShell
+  `gitmap`/`gcd` command wrapper to the end of the profile file. This prevents
+  older `# gitmap shell wrapper v2` or hand-edited profile blocks that appear
+  later in `$PROFILE` from overriding the fresh wrapper and leaving `gitmap cd`
+  stuck on the raw exe warning.
+
 ## v5.9.0 — (2026-05-16) — Harden PowerShell `gitmap cd` activation
 
 ### Fixed

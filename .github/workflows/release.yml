@@ -373,7 +373,12 @@ jobs:
               if (-not (Test-Path $profilePath)) { Add-Content -Path $profilePath -Value $block -Encoding UTF8; return }
               $content = Get-Content $profilePath -Raw -ErrorAction SilentlyContinue
               $pattern = "(?s)" + [regex]::Escape("# gitmap command wrapper v1") + ".*?" + [regex]::Escape("# gitmap command wrapper v1 end")
-              if ($content -match $pattern) { Set-Content -Path $profilePath -Value ([regex]::Replace($content, $pattern, $block, 1)) -Encoding UTF8; return }
+              if ($content -match $pattern) {
+                  $without = [regex]::Replace($content, $pattern, "", 1).TrimEnd()
+                  $rewritten = if ([string]::IsNullOrWhiteSpace($without)) { "$block`r`n" } else { "$without`r`n`r`n$block`r`n" }
+                  Set-Content -Path $profilePath -Value $rewritten -Encoding UTF8
+                  return
+              }
               Add-Content -Path $profilePath -Value $block -Encoding UTF8
           }
 
