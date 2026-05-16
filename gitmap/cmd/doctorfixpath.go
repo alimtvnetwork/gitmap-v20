@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
 )
 
 // runFixPath syncs the active PATH binary from the deployed binary.

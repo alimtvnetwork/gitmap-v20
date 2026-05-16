@@ -20,8 +20,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/vscodepm"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/vscodepm"
 )
 
 // canonicalizePMPath returns the canonical Windows-friendly form of an

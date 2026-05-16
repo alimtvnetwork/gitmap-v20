@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
 )
 
 // TestPrettyFixtures is a table-driven loop over every paired

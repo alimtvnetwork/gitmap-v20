@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
 )
 
 // flatCtxEntry is the macOS/Linux representation of a menu item — those

@@ -16,9 +16,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/cliexit"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/clonefrom"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/clonefrom"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
 )
 
 // writeCloneFromReports persists the CSV report (always, unless

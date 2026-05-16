@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/ghtoken"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/verbose"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/verbose"
 )
 
 // uploadToGitHub creates a GitHub release and uploads assets.

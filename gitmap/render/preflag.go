@@ -15,7 +15,7 @@ package render
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/theme"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/theme"
 )
 
 // PrettyMode is the tri-state requested by the caller.

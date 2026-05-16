@@ -9,7 +9,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
 )
 
 // sortGoldenDiffEntries orders entries deterministically: by status

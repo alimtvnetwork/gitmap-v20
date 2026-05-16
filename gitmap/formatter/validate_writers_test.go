@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/model"
 )
 
 // TestWriteJSON_EmitsWarningsButStillWrites verifies the warn-and-write

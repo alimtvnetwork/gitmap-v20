@@ -13,7 +13,7 @@ because there was no version token), then flipped visibility public.
 Two failure modes followed from this:
 
 1. **User confusion.** `cfrp` was conceived for the versioned-repo
-   workflow (`gitmap-v19`, `coding-guidelines-v23`). Running it on a
+   workflow (`gitmap-v20`, `coding-guidelines-v23`). Running it on a
    plain repo silently skipped the rewrite step, so users believed
    the rewrite ran when it hadn't.
 2. **Accidental publication.** `cfrp` always flips visibility to
@@ -31,7 +31,7 @@ Concretely:
 
 | Scenario | Behavior |
 |---|---|
-| URL ends in `-v<N>` (e.g. `gitmap-v19`) | Run the full pipeline. |
+| URL ends in `-v<N>` (e.g. `gitmap-v20`) | Run the full pipeline. |
 | URL has no `-v<N>` suffix, no flag | **Hard error**, non-zero exit, no clone. |
 | URL has no `-v<N>` suffix, `--require-version=false` | Skip + warn, continue. |
 
@@ -42,7 +42,7 @@ is the explicit "I know what I'm doing" escape hatch.
 
 ```
 ✗ cfrp: <url> is not a versioned repository (no -v<N> suffix)
-  cfrp expects a sibling-versioned repo (gitmap-v19, coding-guidelines-v23, ...).
+  cfrp expects a sibling-versioned repo (gitmap-v20, coding-guidelines-v23, ...).
   To proceed anyway (skip the rewrite, still flip visibility public):
       gitmap cfrp <url> --require-version=false
 ```

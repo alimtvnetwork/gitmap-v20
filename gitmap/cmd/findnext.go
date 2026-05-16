@@ -6,8 +6,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/model"
 )
 
 // findNextUsageExitCode is the conventional CLI usage-error exit code.

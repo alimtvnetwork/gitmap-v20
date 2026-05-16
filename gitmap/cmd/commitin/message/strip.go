@@ -3,8 +3,8 @@ package message
 import (
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/cmd/commitin/profile"
-	"github.com/alimtvnetwork/gitmap-v19/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v20/gitmap/constants"
 )
 
 // stripRules drops every line matching any rule, then collapses

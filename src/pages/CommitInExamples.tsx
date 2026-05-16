@@ -71,8 +71,8 @@ gitmap-v1
 gitmap-v2
 gitmap-v3
 ...
-gitmap-v18
-gitmap-v19     <-- newest sibling`}
+gitmap-v20
+gitmap-v20     <-- newest sibling`}
     />
     <p className="text-sm text-muted-foreground mb-2 mt-3">
       Then the keywords expand like this — <em>no manual list needed</em>:
@@ -88,15 +88,15 @@ gitmap-v19     <-- newest sibling`}
         <tbody>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-primary">gitmap cin ./gitmap all</td>
-            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v1, gitmap-v2, …, gitmap-v19 (every sibling, oldest first)</td>
+            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v1, gitmap-v2, …, gitmap-v20 (every sibling, oldest first)</td>
           </tr>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-primary">gitmap cin ./gitmap -5</td>
-            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v15, gitmap-v16, gitmap-v17, gitmap-v18, gitmap-v19</td>
+            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v15, gitmap-v16, gitmap-v17, gitmap-v20, gitmap-v20</td>
           </tr>
           <tr className="border-t border-border">
             <td className="px-4 py-2 font-mono text-primary">gitmap cin ./gitmap -1</td>
-            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v19 (just the newest)</td>
+            <td className="px-4 py-2 font-mono text-xs text-muted-foreground">gitmap-v20 (just the newest)</td>
           </tr>
         </tbody>
       </table>
