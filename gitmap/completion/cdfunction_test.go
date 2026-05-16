@@ -109,6 +109,31 @@ func TestAppendCDFunctionAppendsManagedWrapperAfterLegacyMarker(t *testing.T) {
 	}
 }
 
+func TestAppendCDFunctionRewritesLegacyEndMarker(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "profile")
+	block := constants.CDFuncMarker + "\nfunction gitmap { 'stale' }\n" +
+		constants.CDFuncMarkerEndLegacy + "\n"
+
+	if err := os.WriteFile(path, []byte(block), 0o644); err != nil {
+		t.Fatalf("seed profile failed: %v", err)
+	}
+	if err := appendCDFunction(constants.CDFuncPowerShell, path); err != nil {
+		t.Fatalf("appendCDFunction failed: %v", err)
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read profile failed: %v", err)
+	}
+	text := string(data)
+	if strings.Contains(text, "'stale'") {
+		t.Fatal("expected stale wrapper to be replaced")
+	}
+	if !strings.Contains(text, constants.CDFuncMarkerEnd) {
+		t.Fatal("expected canonical installer-compatible end marker")
+	}
+}
+
 func TestAppendCDFunctionCreatesProfileDir(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "Documents", "WindowsPowerShell", "profile.ps1")
 
