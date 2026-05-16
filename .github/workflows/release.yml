@@ -377,6 +377,18 @@ jobs:
               Add-Content -Path $profilePath -Value $block -Encoding UTF8
           }
 
+          function Resolve-PowerShellProfileTargets {
+              $targets = @()
+              if ($PROFILE) { $targets += $PROFILE }
+              if ($env:USERPROFILE) {
+                  $targets += (Join-Path $env:USERPROFILE "Documents\PowerShell\profile.ps1")
+                  $targets += (Join-Path $env:USERPROFILE "Documents\PowerShell\Microsoft.PowerShell_profile.ps1")
+                  $targets += (Join-Path $env:USERPROFILE "Documents\WindowsPowerShell\profile.ps1")
+                  $targets += (Join-Path $env:USERPROFILE "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1")
+              }
+              return @($targets | Where-Object { $_ } | Select-Object -Unique)
+          }
+
           # --- Main ---
 
           Write-Host ""
@@ -392,7 +404,7 @@ jobs:
           finally { Remove-Item $result.TmpDir -Recurse -Force -ErrorAction SilentlyContinue }
 
           if (-not $NoPath) { Add-ToPath $resolvedDir }
-          Add-CommandWrapperToProfile $PROFILE $resolvedDir
+          foreach ($profileTarget in (Resolve-PowerShellProfileTargets)) { Add-CommandWrapperToProfile $profileTarget $resolvedDir }
           Invoke-Expression (Get-GitmapCommandWrapperBlock $resolvedDir)
 
           # Download and extract docs-site
