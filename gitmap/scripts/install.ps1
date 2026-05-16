@@ -831,10 +831,21 @@ function Install-PowerShellShim([string]$dir) {
 
 function Add-CommandWrapperToProfile([string]$profilePath, [string]$dir) {
     $marker = "# gitmap command wrapper v1"
+    $endMarker = "# gitmap command wrapper v1 end"
     $block = Get-GitmapCommandWrapperBlock $dir
+    $profileDir = Split-Path $profilePath -Parent
+    if ($profileDir -and -not (Test-Path $profileDir)) {
+        New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+    }
     if (-not (Test-Path $profilePath)) { Add-Content -Path $profilePath -Value $block -Encoding UTF8; return $true }
     $content = Get-Content $profilePath -Raw -ErrorAction SilentlyContinue
-    if ($content -and ($content -match [regex]::Escape($marker))) { return $false }
+    if ($content -and ($content -match [regex]::Escape($marker))) {
+        $pattern = "(?s)" + [regex]::Escape($marker) + ".*?" + [regex]::Escape($endMarker)
+        $rewritten = [regex]::Replace($content, $pattern, [System.Text.RegularExpressions.MatchEvaluator]{ param($m) $block }, 1)
+        if ($rewritten -eq $content) { return $false }
+        Set-Content -Path $profilePath -Value $rewritten -Encoding UTF8
+        return $true
+    }
     Add-Content -Path $profilePath -Value $block -Encoding UTF8
     return $true
 }
@@ -880,6 +891,7 @@ public static class GitMapEnvNative {
 
 function Add-ToPath([string]$dir) {
     $modified = @()
+    Install-PowerShellShim $dir
 
     # --- 1. Windows User PATH (registry) -- covers CMD + new PowerShell windows ---
     $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
