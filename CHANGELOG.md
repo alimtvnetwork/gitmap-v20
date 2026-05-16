@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.11.0 — (2026-05-16) — `--no-color` / `--color` flag for help output
+
+### Added
+- `--no-color` and `--color[=true|false|on|off|auto|...]` are now accepted
+  everywhere `--pretty` / `--no-pretty` work (notably `gitmap <cmd> --help`).
+  They are pure synonyms for the existing pretty flags, since the pretty
+  markdown pipeline is the only ANSI surface in the CLI. `--no-color`
+  mirrors the widely-used [NO_COLOR](https://no-color.org) env convention
+  so users reaching for the conventional spelling get the expected
+  behavior without having to discover `--no-pretty`.
+- Last-writer-wins still applies across the synonym families
+  (`--pretty --no-color` → PrettyOff; `--no-color --pretty=on` → PrettyOn).
+
+### Tests
+- `prettyflag_test.go` covers every `--color` / `--no-color` form,
+  cross-family last-writer-wins, and guards `--colorblind` / `--color=blue`
+  from being silently swallowed by the new prefix.
+
+
 ## v5.10.0 — (2026-05-16) — Force PowerShell wrapper to load last
 
 ### Fixed
