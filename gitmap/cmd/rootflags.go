@@ -245,6 +245,10 @@ func parseCloneFlags(args []string) CloneFlags {
 		constants.FlagDescNoVSCodeSync)
 	debugPathsFlag := fs.Bool(constants.FlagDebugPaths, false,
 		constants.FlagDescDebugPaths)
+	sshFlag := fs.Bool("ssh", false,
+		"Force every clone URL into `git@host:owner/repo.git` SSH-shorthand form before git runs (auto-converts HTTPS / `ssh://` URLs)")
+	httpsFlag := fs.Bool("https", false,
+		"Force every clone URL into `https://host/owner/repo.git` form (auto-converts SSH-shorthand / `ssh://` URLs)")
 	fs.Parse(args)
 
 	applyDebugPathsEnv(*debugPathsFlag)
