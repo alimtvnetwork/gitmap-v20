@@ -213,7 +213,7 @@ function gitmap {
   if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
     $env:GITMAP_WRAPPER = "1"
     $env:GITMAP_COMMAND_WRAPPER = "1"
-    $dest = & $real @args
+    $dest = (& $real @args | Out-String).Trim()
     if ($LASTEXITCODE -ne 0) {
       return
     }
