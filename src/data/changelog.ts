@@ -8,6 +8,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "v5.18.0",
+    date: "2026-05-18",
+    subtitle: "Auto-run `gitmap setup` after install and on first `gitmap cd` when the shell wrapper isn't loaded",
+    items: [
+      "Install scripts (`gitmap/scripts/install.sh` + `gitmap/scripts/install.ps1`) now invoke `<bin_path> setup` as a final non-fatal step after `verify_installation` / `Invoke-InstallVerification`, so a fresh `irm … | iex` or `curl … | sh` lands the user with shell wrapper (`gcd` / `gitmap` profile function) + completions installed — no second manual command. Setup is idempotent (marker `# gitmap shell wrapper v2`); failures print a yellow `(setup auto-run skipped …)` line and continue.",
+      "`gitmap cd` self-heals when the shell wrapper isn't loaded: `warnIfNoWrapper` in `gitmap/cmd/setupverify.go` now auto-runs the full `gitmap setup` (not just `InstallCDFunction`) so the very first `gitmap cd <repo>` after a fresh install installs the wrapper + completions automatically. Existing stderr reload tip (`. $PROFILE` / `source ~/.zshrc`) still prints so the user knows why the *next* `cd` will actually move the parent shell. Recover-guarded — a setup panic never breaks the cd output.",
+      "Closes the first-run UX gap where users hit `! Shell wrapper not active — 'gitmap cd' printed the path but cannot change your directory.` because `gitmap setup` was a separate manual step.",
+    ],
+  },
+  {
     version: "v5.17.0",
     date: "2026-05-18",
     subtitle: "`gitmap cd` PowerShell wrapper: coerce stdout to a single string (fixes `Set-Location : Cannot convert 'System.Object[]'`)",
