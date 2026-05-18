@@ -377,7 +377,7 @@ var InstallToolCategories = map[string][]string{
 		ToolStickyNotes, ToolVSCodeCtx, ToolPwshCtx, ToolCtx,
 		ToolNpp, ToolNppSettings, ToolNppInstall,
 		ToolVSCodeSync, ToolOBSSync, ToolWTSync,
-		ToolScripts, ToolAllDevTools,
+		ToolScripts, ToolGitmapOneliner, ToolAllDevTools,
 	},
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,
