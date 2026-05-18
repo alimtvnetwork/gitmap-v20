@@ -10,7 +10,7 @@ const (
 if (-not (Test-Path -LiteralPath $real)) { Write-Error "gitmap executable not found: $real"; return }
 if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
   $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"
-  $dest = & $real @args
+  $dest = (& $real @args | Out-String).Trim()
   if ($LASTEXITCODE -ne 0) { $global:LASTEXITCODE = $LASTEXITCODE; return }
   if ($dest -and (Test-Path -LiteralPath $dest)) { Set-Location -LiteralPath $dest }
   return
