@@ -29,6 +29,8 @@ func topLevelCmds() map[string]string {
 		"CmdPullAlias":             CmdPullAlias,
 		"CmdPullAll":               CmdPullAll,
 		"CmdPullAllAlias":          CmdPullAllAlias,
+		"CmdPush":                  CmdPush,
+		"CmdPushAlias":             CmdPushAlias,
 		"CmdRescan":                CmdRescan,
 		"CmdRescanAlias":           CmdRescanAlias,
 		"CmdRescanSubtree":         CmdRescanSubtree,
