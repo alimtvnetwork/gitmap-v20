@@ -244,6 +244,8 @@ function gitmap {
     Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue
   }
 }
+
+function gitm { gitmap @args }
 # gitmap command wrapper v1 end`
 
 // CD function messages.
