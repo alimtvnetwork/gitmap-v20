@@ -92,7 +92,22 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v20/main/insta
 
 > **How install resolves a version:** every installer follows the generic contract in [`spec/07-generic-release/09-generic-install-script-behavior.md`](spec/07-generic-release/09-generic-install-script-behavior.md). In short — **strict tag mode** (`--version <tag>` / `-Version <tag>`) installs that exact release with **no fallback whatsoever** (no `latest`, no sibling probe, no main-branch HEAD; missing tag → exit 1). **Discovery mode** (no tag supplied) probes the next 20 `-v<N+i>` sibling repos in parallel, then falls back to `releases/latest`, and finally to the default branch HEAD as a last resort.
 
+### 📁 Install to a custom directory
+
+Pass an explicit install path on the one-liner — no prompts, no auto-detection. Useful for shared drives, portable installs, or pinning gitmap next to other dev tools. Replace `D:\tools\gitmap` / `/opt/gitmap` with your preferred path.
+
+```bash
+# Windows · PowerShell — pass -InstallDir through irm | iex
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v20/main/install.ps1))) -InstallDir 'D:\tools\gitmap'
+
+# macOS · Linux · Bash — pass --dir through curl | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v20/main/install.sh | sh -s -- --dir /opt/gitmap
+```
+
+> Add `-Version v5.28.0` (PowerShell) or `--version v5.28.0` (Bash) before the closing quote / end of line to pin a specific release into your custom directory.
+
 ---
+
 
 ## About GitMap
 
