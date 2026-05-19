@@ -1,5 +1,15 @@
 # Changelog
 
+## v5.26.0 — (2026-05-18) — Pin bump rolling up the `clone --ssh` flag-position fix
+
+### Pinned
+- README pinned-version block + version matrix moved to **v5.26.0** (PowerShell + Bash installer URLs and all per-platform release assets).
+- Synced `gitmap/constants/constants.go` (`Version = "5.26.0"`) and `src/constants/index.ts` (`VERSION = "v5.26.0"`).
+
+### Rolled up
+- `gitmap clone <url> --ssh` (and every other bool clone flag) is honoured regardless of position — `parseCloneFlags` routes through `reorderFlagsBeforeArgs` so `--ssh` after the URL no longer slips past Go's `flag` package.
+- SSH-shorthand and `ssh://` URLs continue to clone natively through `git`; the `--ssh` converter only fires to coerce an HTTPS URL into shorthand.
+
 ## v5.24.0 — (2026-05-18) — `gitmap clone --ssh` actually parses when placed after the URL
 
 ### Fixed
